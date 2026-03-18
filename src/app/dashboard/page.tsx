@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [alumno, setAlumno] = useState<Alumno | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [activeView, setActiveView] = useState<'overview' | 'calendario'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'calendario'>('calendario');
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -127,8 +127,8 @@ export default function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
                 </div>
-                <h3>Registrar Nueva Salida</h3>
-                <p>Programar fecha para salida a pie del alumno</p>
+                <h3>Registrar Salida</h3>
+                <p>Registre la salida a pie de sus hijos</p>
                 <svg className="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
                 </svg>
