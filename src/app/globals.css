@@ -198,6 +198,25 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+@media (max-width: 640px) {
+  .login-card {
+    padding: var(--space-5) var(--space-4);
+  }
+  
+  .institute-name {
+    font-size: 1.25rem;
+  }
+  
+  .institute-subtitle {
+    font-size: 0.8125rem;
+  }
+  
+  .btn-primary {
+    padding: var(--space-3);
+    font-size: 0.9375rem;
+  }
+}
+
 .login-header {
   text-align: center;
   margin-bottom: var(--space-5);
@@ -477,10 +496,19 @@ body {
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
+    width: 280px;
   }
   
   .sidebar.open {
     transform: translateX(0);
+  }
+  
+  .sidebar.collapsed {
+    width: 280px;
+  }
+  
+  .sidebar-toggle {
+    display: none;
   }
 }
 
@@ -696,6 +724,19 @@ body {
   .dashboard-main {
     margin-left: 0;
   }
+  
+  .dashboard-content {
+    padding: var(--space-3);
+  }
+  
+  .overview-single-left {
+    justify-content: center;
+    padding-left: 0;
+  }
+  
+  .action-card-large {
+    max-width: 100%;
+  }
 }
 
 .dashboard-header {
@@ -710,6 +751,21 @@ body {
   top: 0;
   z-index: 10;
   box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 640px) {
+  .dashboard-header {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+  
+  .header-title h1 {
+    font-size: 1.125rem;
+  }
+  
+  .breadcrumb {
+    font-size: 0.75rem;
+  }
 }
 
 .menu-toggle {
@@ -1444,22 +1500,102 @@ body {
 @media (max-width: 640px) {
   .registro-container {
     padding: var(--space-2);
+    gap: var(--space-4);
+  }
+  
+  .registro-permanente-card,
+  .registros-eventuales-card,
+  .formulario-card {
+    padding: var(--space-4);
+  }
+  
+  .section-title,
+  .form-title {
+    font-size: 1.25rem;
+  }
+  
+  .dias-permanente-display,
+  .fechas-eventuales-grid {
+    gap: var(--space-1);
+  }
+  
+  .dia-permanente-item {
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.875rem;
+  }
+  
+  .btn-nuevo {
+    padding: var(--space-3) var(--space-4);
+    font-size: 1rem;
+  }
+  
+  .tipo-selector-tabs {
+    font-size: 1rem;
+  }
+  
+  .tipo-tab {
+    padding: var(--space-3);
+    font-size: 1rem;
+  }
+  
+  .form-content {
+    padding: var(--space-4);
+    gap: var(--space-4);
   }
   
   .dias-inline {
     gap: var(--space-1);
+    flex-wrap: wrap;
+  }
+  
+  .dia-inline-btn {
+    flex: 0 0 calc(20% - var(--space-1));
+    padding: var(--space-2) var(--space-1);
   }
   
   .dia-short {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
   
   .dia-full {
     font-size: 0.625rem;
   }
   
+  .calendario-eventual {
+    padding: var(--space-3);
+  }
+  
+  .calendario-mes {
+    font-size: 1rem;
+  }
+  
+  .calendario-nav {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .calendario-dia {
+    font-size: 0.875rem;
+  }
+  
+  .form-input {
+    padding: var(--space-2);
+    font-size: 0.9375rem;
+  }
+  
   .form-actions {
     grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  
+  .btn-cancelar,
+  .btn-guardar {
+    padding: var(--space-2);
+  }
+  
+  .selector-title {
+    font-size: 1rem;
   }
 }
 
@@ -2009,4 +2145,145 @@ body {
 
 .card-content-modern {
   padding: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .card-header-modern {
+    padding: var(--space-2);
+  }
+  
+  .card-title-modern {
+    font-size: 1rem;
+  }
+  
+  .card-subtitle-modern {
+    font-size: 0.75rem;
+  }
+  
+  .card-content-modern {
+    padding: var(--space-2);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+  :root {
+    --space-6: 2rem;
+    --space-8: 3rem;
+  }
+  
+  body {
+    font-size: 0.9375rem;
+  }
+  
+  .login-container {
+    padding: var(--space-3);
+  }
+  
+  .institute-logo {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .institute-logo svg {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .floating-input {
+    font-size: 0.9375rem;
+    padding: 1.125rem var(--space-2) 0.625rem 2.75rem;
+  }
+  
+  .input-icon {
+    left: 0.75rem;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .floating-label {
+    left: 2.75rem;
+    font-size: 0.9375rem;
+  }
+  
+  .input-wrapper.active .floating-label,
+  .floating-input:focus + .floating-label,
+  .floating-input:not(:placeholder-shown) + .floating-label {
+    left: 2.5rem;
+    font-size: 0.6875rem;
+  }
+  
+  .overview-single-left {
+    min-height: 300px;
+  }
+  
+  .action-card-large {
+    padding: var(--space-3);
+  }
+  
+  .action-card-large h3 {
+    font-size: 1.125rem;
+  }
+  
+  .action-card-large p {
+    font-size: 0.8125rem;
+  }
+  
+  .action-icon-large {
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-2);
+  }
+  
+  .action-icon-large svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .dias-inline {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.375rem;
+  }
+  
+  .dia-inline-btn {
+    flex: none;
+    padding: var(--space-2) 0;
+  }
+  
+  .dia-short {
+    font-size: 1.125rem;
+  }
+  
+  .calendario-dias {
+    gap: 0.25rem;
+  }
+  
+  .calendario-dia {
+    font-size: 0.8125rem;
+  }
+  
+  .dia-semana-header {
+    font-size: 0.6875rem;
+  }
+}
+
+/* Touch-friendly buttons */
+@media (hover: none) and (pointer: coarse) {
+  .btn-primary,
+  .btn-nuevo,
+  .btn-guardar,
+  .btn-cancelar,
+  .nav-item,
+  .tipo-tab,
+  .dia-inline-btn,
+  .calendario-dia:not(.disabled),
+  .calendario-nav {
+    min-height: 44px;
+  }
+  
+  .btn-cancelar-dia,
+  .btn-cancelar-fecha {
+    min-width: 36px;
+    min-height: 36px;
+  }
 }
