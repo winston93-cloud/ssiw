@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS public.registro_salida_pie (
   id BIGSERIAL PRIMARY KEY,
   alumno_ref TEXT NOT NULL REFERENCES public.alumno(alumno_ref) ON DELETE CASCADE,
   tipo_registro TEXT NOT NULL CHECK (tipo_registro IN ('permanente', 'eventual')),
-  dias_semana TEXT[], -- Para permanente: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes']
-  fecha_inicio DATE, -- Para eventual: inicio de la semana
-  fecha_fin DATE, -- Para eventual: fin de la semana
+  dias_semana TEXT[], -- Para permanente: días de la semana
+  fechas_especificas DATE[], -- Para eventual: fechas específicas
+  cancelaciones_usadas INT DEFAULT 0, -- Para permanente: máximo 5
   activo BOOLEAN DEFAULT TRUE,
   nombre_tutor TEXT NOT NULL,
   email_tutor TEXT NOT NULL,
@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS public.registro_salida_pie (
   CONSTRAINT max_5_dias CHECK (
     (tipo_registro = 'eventual') OR 
     (tipo_registro = 'permanente' AND array_length(dias_semana, 1) <= 5)
+  ),
+  CONSTRAINT max_5_cancelaciones CHECK (
+    (tipo_registro = 'eventual') OR 
+    (tipo_registro = 'permanente' AND cancelaciones_usadas <= 5)
   )
 );
 

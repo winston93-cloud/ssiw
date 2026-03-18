@@ -4,23 +4,16 @@ import { supabase } from '@/lib/supabase';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { alumno_ref, tipo_registro, dias_semana, nombre_tutor, email_tutor, telefono_tutor } = body;
+    const { alumno_ref, tipo_registro, dias_semana, fechas, nombre_tutor, email_tutor, telefono_tutor } = body;
 
-    if (!alumno_ref || !tipo_registro || !dias_semana || dias_semana.length === 0) {
+    if (!alumno_ref || !tipo_registro) {
       return NextResponse.json(
         { success: false, error: 'Faltan datos requeridos' },
         { status: 400 }
       );
     }
 
-    if (dias_semana.length > 5) {
-      return NextResponse.json(
-        { success: false, error: 'Máximo 5 días permitidos' },
-        { status: 400 }
-      );
-    }
-
-    // Verificar que el alumno existe
+    // Verificar alumno
     const { data: alumno, error: alumnoError } = await supabase
       .from('alumno')
       .select('*')
@@ -34,8 +27,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Si es permanente, verificar que no haya otro registro permanente activo
+    // Si es permanente, verificar que no haya otro activo y validar datos tutor
     if (tipo_registro === 'permanente') {
+      if (!dias_semana || dias_semana.length === 0) {
+        return NextResponse.json(
+          { success: false, error: 'Debe seleccionar días' },
+          { status: 400 }
+        );
+      }
+
+      if (!nombre_tutor || !email_tutor || !telefono_tutor) {
+        return NextResponse.json(
+          { success: false, error: 'Datos del tutor requeridos' },
+          { status: 400 }
+        );
+      }
+
       const { data: existente } = await supabase
         .from('registro_salida_pie')
         .select('*')
@@ -46,29 +53,50 @@ export async function POST(request: NextRequest) {
 
       if (existente) {
         return NextResponse.json(
-          { success: false, error: 'Ya existe un registro permanente activo. Elimínelo primero.' },
+          { success: false, error: 'Ya existe un registro permanente activo' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Si es eventual, solo validar fechas
+    if (tipo_registro === 'eventual') {
+      if (!fechas || fechas.length === 0) {
+        return NextResponse.json(
+          { success: false, error: 'Debe seleccionar fechas' },
           { status: 400 }
         );
       }
     }
 
     // Crear registro
+    const dataToInsert: any = {
+      alumno_ref,
+      tipo_registro,
+      activo: true,
+    };
+
+    if (tipo_registro === 'permanente') {
+      dataToInsert.dias_semana = dias_semana;
+      dataToInsert.nombre_tutor = nombre_tutor;
+      dataToInsert.email_tutor = email_tutor;
+      dataToInsert.telefono_tutor = telefono_tutor;
+      dataToInsert.cancelaciones_usadas = 0;
+    } else {
+      dataToInsert.fechas_especificas = fechas;
+      dataToInsert.nombre_tutor = nombre_tutor || 'N/A';
+      dataToInsert.email_tutor = email_tutor || 'N/A';
+      dataToInsert.telefono_tutor = telefono_tutor || 'N/A';
+    }
+
     const { data: registro, error: registroError } = await supabase
       .from('registro_salida_pie')
-      .insert({
-        alumno_ref,
-        tipo_registro,
-        dias_semana,
-        nombre_tutor,
-        email_tutor,
-        telefono_tutor,
-        activo: true,
-      })
+      .insert(dataToInsert)
       .select()
       .single();
 
     if (registroError) {
-      console.error('Error al crear registro:', registroError);
+      console.error('Error al crear:', registroError);
       return NextResponse.json(
         { success: false, error: 'Error al crear el registro' },
         { status: 500 }
@@ -77,13 +105,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Registro creado exitosamente',
+      message: 'Registro creado',
       data: registro,
     });
   } catch (error) {
-    console.error('Error en crear registro:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { success: false, error: 'Error al procesar la solicitud' },
+      { success: false, error: 'Error al procesar' },
       { status: 500 }
     );
   }
