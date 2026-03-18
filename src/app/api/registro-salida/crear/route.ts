@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { enviarCorreoConfirmacion } from '@/lib/email';
-import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { alumno_ref, fecha, nombre_tutor, email_tutor, telefono_tutor } = body;
+    const { alumno_ref, tipo_registro, dias_semana, nombre_tutor, email_tutor, telefono_tutor } = body;
 
-    if (!alumno_ref || !fecha || !nombre_tutor || !email_tutor || !telefono_tutor) {
+    if (!alumno_ref || !tipo_registro || !dias_semana || dias_semana.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Faltan datos requeridos' },
+        { status: 400 }
+      );
+    }
+
+    if (dias_semana.length > 5) {
+      return NextResponse.json(
+        { success: false, error: 'Máximo 5 días permitidos' },
         { status: 400 }
       );
     }
@@ -29,39 +34,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar que no haya un registro confirmado para esa fecha
-    const { data: registroExistente } = await supabase
-      .from('registro_salida')
-      .select('*')
-      .eq('alumno_ref', alumno_ref)
-      .eq('fecha', fecha)
-      .eq('confirmado', true)
-      .single();
+    // Si es permanente, verificar que no haya otro registro permanente activo
+    if (tipo_registro === 'permanente') {
+      const { data: existente } = await supabase
+        .from('registro_salida_pie')
+        .select('*')
+        .eq('alumno_ref', alumno_ref)
+        .eq('tipo_registro', 'permanente')
+        .eq('activo', true)
+        .single();
 
-    if (registroExistente) {
-      return NextResponse.json(
-        { success: false, error: 'Ya existe un registro confirmado para esta fecha' },
-        { status: 400 }
-      );
+      if (existente) {
+        return NextResponse.json(
+          { success: false, error: 'Ya existe un registro permanente activo. Elimínelo primero.' },
+          { status: 400 }
+        );
+      }
     }
 
-    // Generar token de confirmación
-    const token = crypto.randomBytes(32).toString('hex');
-    const token_expiracion = new Date();
-    token_expiracion.setHours(token_expiracion.getHours() + 24);
-
-    // Crear registro pendiente
+    // Crear registro
     const { data: registro, error: registroError } = await supabase
-      .from('registro_salida')
+      .from('registro_salida_pie')
       .insert({
         alumno_ref,
-        fecha,
+        tipo_registro,
+        dias_semana,
         nombre_tutor,
         email_tutor,
         telefono_tutor,
-        token_confirmacion: token,
-        token_expiracion: token_expiracion.toISOString(),
-        confirmado: false,
+        activo: true,
       })
       .select()
       .single();
@@ -74,26 +75,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Enviar correo de confirmación
-    const nombreCompleto = alumno.alumno_nombre_completo || 
-      `${alumno.alumno_nombre} ${alumno.alumno_app} ${alumno.alumno_apm}`;
-
-    try {
-      await enviarCorreoConfirmacion({
-        email: email_tutor,
-        nombreTutor: nombre_tutor,
-        nombreAlumno: nombreCompleto,
-        fecha,
-        token,
-      });
-    } catch (emailError) {
-      console.error('Error al enviar correo:', emailError);
-      // No fallar si el correo no se envía
-    }
-
     return NextResponse.json({
       success: true,
-      message: 'Registro creado. Por favor revise su correo para confirmar.',
+      message: 'Registro creado exitosamente',
       data: registro,
     });
   } catch (error) {

@@ -799,14 +799,14 @@ body {
 .action-card-large {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-2xl);
-  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
   color: white;
   cursor: pointer;
   transition: var(--transition-smooth);
   position: relative;
   overflow: hidden;
-  max-width: 560px;
+  max-width: 420px;
   width: 100%;
   text-align: center;
   will-change: transform;
@@ -840,33 +840,33 @@ body {
 }
 
 .action-icon-large {
-  width: 80px;
-  height: 80px;
-  border-radius: var(--radius-2xl);
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto var(--space-5);
+  margin: 0 auto var(--space-4);
 }
 
 .action-icon-large svg {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   stroke-width: 2px;
 }
 
 .action-card-large h3 {
-  font-size: var(--font-display);
+  font-size: 1.5rem;
   font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-tight);
+  letter-spacing: var(--tracking-snug);
   line-height: var(--leading-tight);
   margin-bottom: var(--space-2);
 }
 
 .action-card-large p {
   opacity: 0.95;
-  font-size: var(--font-body);
+  font-size: 0.9375rem;
   font-weight: var(--weight-medium);
   line-height: var(--leading-normal);
 }

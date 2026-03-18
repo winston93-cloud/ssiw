@@ -1,38 +1,42 @@
--- Tabla para registro de salidas a pie
-CREATE TABLE IF NOT EXISTS public.registro_salida (
+-- Eliminar tabla anterior si existe
+DROP TABLE IF EXISTS public.registro_salida CASCADE;
+
+-- Nueva tabla para registro de salida a pie
+CREATE TABLE IF NOT EXISTS public.registro_salida_pie (
   id BIGSERIAL PRIMARY KEY,
-  alumno_ref TEXT NOT NULL REFERENCES public.alumno(alumno_ref),
-  fecha DATE NOT NULL,
+  alumno_ref TEXT NOT NULL REFERENCES public.alumno(alumno_ref) ON DELETE CASCADE,
+  tipo_registro TEXT NOT NULL CHECK (tipo_registro IN ('permanente', 'eventual')),
+  dias_semana TEXT[], -- Para permanente: ['lunes', 'martes', 'miercoles', 'jueves', 'viernes']
+  fecha_inicio DATE, -- Para eventual: inicio de la semana
+  fecha_fin DATE, -- Para eventual: fin de la semana
+  activo BOOLEAN DEFAULT TRUE,
   nombre_tutor TEXT NOT NULL,
   email_tutor TEXT NOT NULL,
   telefono_tutor TEXT NOT NULL,
-  token_confirmacion TEXT UNIQUE NOT NULL,
-  token_expiracion TIMESTAMP WITH TIME ZONE NOT NULL,
-  confirmado BOOLEAN DEFAULT FALSE,
-  fecha_confirmacion TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  CONSTRAINT max_5_dias CHECK (
+    (tipo_registro = 'eventual') OR 
+    (tipo_registro = 'permanente' AND array_length(dias_semana, 1) <= 5)
+  )
 );
 
--- Índices para mejorar el rendimiento
-CREATE INDEX IF NOT EXISTS idx_registro_salida_alumno_ref 
-  ON public.registro_salida(alumno_ref);
+-- Índices para optimizar consultas
+CREATE INDEX IF NOT EXISTS idx_registro_salida_pie_alumno_ref 
+  ON public.registro_salida_pie(alumno_ref);
 
-CREATE INDEX IF NOT EXISTS idx_registro_salida_fecha 
-  ON public.registro_salida(fecha);
+CREATE INDEX IF NOT EXISTS idx_registro_salida_pie_activo 
+  ON public.registro_salida_pie(activo);
 
-CREATE INDEX IF NOT EXISTS idx_registro_salida_token 
-  ON public.registro_salida(token_confirmacion);
+CREATE INDEX IF NOT EXISTS idx_registro_salida_pie_tipo 
+  ON public.registro_salida_pie(tipo_registro);
 
-CREATE INDEX IF NOT EXISTS idx_registro_salida_confirmado 
-  ON public.registro_salida(confirmado);
+-- Constraint único: un alumno solo puede tener un registro permanente activo
+CREATE UNIQUE INDEX IF NOT EXISTS idx_registro_salida_pie_permanente_unico 
+  ON public.registro_salida_pie(alumno_ref) 
+  WHERE tipo_registro = 'permanente' AND activo = TRUE;
 
--- Constraint para evitar registros duplicados confirmados
-CREATE UNIQUE INDEX IF NOT EXISTS idx_registro_salida_unico 
-  ON public.registro_salida(alumno_ref, fecha) 
-  WHERE confirmado = TRUE;
-
--- Función para actualizar updated_at automáticamente
+-- Función para actualizar updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -41,21 +45,17 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Trigger para actualizar updated_at
-DROP TRIGGER IF EXISTS update_registro_salida_updated_at ON public.registro_salida;
-CREATE TRIGGER update_registro_salida_updated_at 
-  BEFORE UPDATE ON public.registro_salida 
+-- Trigger para updated_at
+DROP TRIGGER IF EXISTS update_registro_salida_pie_updated_at ON public.registro_salida_pie;
+CREATE TRIGGER update_registro_salida_pie_updated_at 
+  BEFORE UPDATE ON public.registro_salida_pie 
   FOR EACH ROW 
   EXECUTE FUNCTION update_updated_at_column();
 
--- Comentarios para documentación
-COMMENT ON TABLE public.registro_salida IS 'Registro de salidas a pie de alumnos';
-COMMENT ON COLUMN public.registro_salida.alumno_ref IS 'Referencia al número de control del alumno';
-COMMENT ON COLUMN public.registro_salida.fecha IS 'Fecha para la salida a pie';
-COMMENT ON COLUMN public.registro_salida.nombre_tutor IS 'Nombre completo del padre/tutor que recogerá';
-COMMENT ON COLUMN public.registro_salida.email_tutor IS 'Email del tutor para confirmación';
-COMMENT ON COLUMN public.registro_salida.telefono_tutor IS 'Teléfono de contacto del tutor';
-COMMENT ON COLUMN public.registro_salida.token_confirmacion IS 'Token único para confirmar el registro';
-COMMENT ON COLUMN public.registro_salida.token_expiracion IS 'Fecha y hora de expiración del token';
-COMMENT ON COLUMN public.registro_salida.confirmado IS 'Si el registro ha sido confirmado por email';
-COMMENT ON COLUMN public.registro_salida.fecha_confirmacion IS 'Fecha y hora en que se confirmó el registro';
+-- Comentarios
+COMMENT ON TABLE public.registro_salida_pie IS 'Registro de salida a pie de alumnos (permanente o eventual)';
+COMMENT ON COLUMN public.registro_salida_pie.tipo_registro IS 'permanente: se repite cada semana | eventual: semanas específicas';
+COMMENT ON COLUMN public.registro_salida_pie.dias_semana IS 'Array de días para registro permanente (máximo 5)';
+COMMENT ON COLUMN public.registro_salida_pie.fecha_inicio IS 'Para eventual: fecha inicio de semana';
+COMMENT ON COLUMN public.registro_salida_pie.fecha_fin IS 'Para eventual: fecha fin de semana';
+COMMENT ON COLUMN public.registro_salida_pie.activo IS 'Si el registro está activo o fue dado de baja';
