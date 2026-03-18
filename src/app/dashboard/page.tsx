@@ -10,7 +10,8 @@ export default function DashboardPage() {
   const [alumno, setAlumno] = useState<Alumno | null>(null);
   const [mounted, setMounted] = useState(false);
   const [activeView, setActiveView] = useState<'overview' | 'calendario'>('overview');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -47,14 +48,27 @@ export default function DashboardPage() {
 
   return (
     <main className="dashboard">
-      <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
+      <aside className={`sidebar ${menuOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <svg viewBox="0 0 48 48" fill="none">
               <path d="M24 4L6 14V22C6 32 12 40.5 24 44C36 40.5 42 32 42 22V14L24 4Z" stroke="currentColor" strokeWidth="2.5"/>
             </svg>
           </div>
-          <h2>SSIW</h2>
+          {!sidebarCollapsed && <h2>SSIW</h2>}
+          <button 
+            className="sidebar-toggle" 
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title={sidebarCollapsed ? 'Expandir' : 'Colapsar'}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              {sidebarCollapsed ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
+              )}
+            </svg>
+          </button>
           <button className="sidebar-close" onClick={() => setMenuOpen(false)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
@@ -70,7 +84,7 @@ export default function DashboardPage() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
             </svg>
-            <span>Inicio</span>
+            {!sidebarCollapsed && <span>Inicio</span>}
           </button>
 
           <button
@@ -80,7 +94,7 @@ export default function DashboardPage() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
-            <span>Registro de Salida</span>
+            {!sidebarCollapsed && <span>Registro de Salida</span>}
           </button>
         </nav>
 
@@ -89,7 +103,7 @@ export default function DashboardPage() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
-            <span>Cerrar Sesión</span>
+            {!sidebarCollapsed && <span>Cerrar Sesión</span>}
           </button>
         </div>
       </aside>
@@ -120,7 +134,7 @@ export default function DashboardPage() {
 
         <div className="dashboard-content">
           {activeView === 'overview' && (
-            <div className="overview-single">
+            <div className="overview-single-left">
               <div className="action-card-large" onClick={() => setActiveView('calendario')}>
                 <div className="action-icon-large">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
