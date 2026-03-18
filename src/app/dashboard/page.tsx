@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [alumno, setAlumno] = useState<Alumno | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [activeView, setActiveView] = useState<'overview' | 'calendario'>('calendario');
+  const [activeView, setActiveView] = useState<'overview' | 'calendario'>('overview');
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
