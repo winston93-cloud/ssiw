@@ -1,10 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { Alert } from '../ui/Alert';
 import { Alumno } from '@/types';
 
 interface FormularioRegistroProps {
@@ -13,12 +9,12 @@ interface FormularioRegistroProps {
 
 type DiaSemana = 'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes';
 
-const DIAS_SEMANA: { value: DiaSemana; label: string }[] = [
-  { value: 'lunes', label: 'Lunes' },
-  { value: 'martes', label: 'Martes' },
-  { value: 'miercoles', label: 'Miércoles' },
-  { value: 'jueves', label: 'Jueves' },
-  { value: 'viernes', label: 'Viernes' },
+const DIAS_SEMANA: { value: DiaSemana; label: string; emoji: string }[] = [
+  { value: 'lunes', label: 'Lunes', emoji: '🌙' },
+  { value: 'martes', label: 'Martes', emoji: '🔥' },
+  { value: 'miercoles', label: 'Miércoles', emoji: '⚡' },
+  { value: 'jueves', label: 'Jueves', emoji: '⭐' },
+  { value: 'viernes', label: 'Viernes', emoji: '🎉' },
 ];
 
 export default function FormularioRegistro({ alumno }: FormularioRegistroProps) {
@@ -30,6 +26,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [semanaSeleccionada, setSemanaSeleccionada] = useState<Date | null>(null);
 
   const [formData, setFormData] = useState({
     nombre_tutor: '',
@@ -50,7 +47,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         setRegistrosExistentes(data.data || []);
       }
     } catch (error) {
-      console.error('Error al cargar registros:', error);
+      console.error('Error:', error);
     } finally {
       setLoadingRegistros(false);
     }
@@ -71,8 +68,29 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
   const puedeModificar = () => {
     const ahora = new Date();
-    const hora = ahora.getHours();
-    return hora < 13; // Antes de 1pm
+    return ahora.getHours() < 13;
+  };
+
+  const getProximasSemanas = () => {
+    const semanas = [];
+    const hoy = new Date();
+    
+    for (let i = 0; i < 8; i++) {
+      const fecha = new Date(hoy);
+      fecha.setDate(fecha.getDate() + (i * 7));
+      const inicioSemana = new Date(fecha);
+      inicioSemana.setDate(fecha.getDate() - fecha.getDay() + 1);
+      semanas.push(inicioSemana);
+    }
+    return semanas;
+  };
+
+  const formatearSemana = (fecha: Date) => {
+    const inicio = new Date(fecha);
+    const fin = new Date(fecha);
+    fin.setDate(inicio.getDate() + 4);
+    
+    return `${inicio.getDate()}-${fin.getDate()} ${inicio.toLocaleDateString('es-MX', { month: 'short' })}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,6 +106,11 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       return;
     }
 
+    if (tipoRegistro === 'eventual' && !semanaSeleccionada) {
+      setError('Debe seleccionar una semana');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -96,6 +119,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         alumno_ref: alumno.alumno_ref,
         tipo_registro: tipoRegistro,
         dias_semana: diasSeleccionados,
+        fecha_inicio: tipoRegistro === 'eventual' ? semanaSeleccionada?.toISOString() : null,
         ...formData,
       };
 
@@ -108,13 +132,15 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       const result = await response.json();
 
       if (result.success) {
-        setSuccess('Registro guardado exitosamente');
+        setSuccess('✅ Registro guardado exitosamente');
         setDiasSeleccionados([]);
+        setSemanaSeleccionada(null);
         setFormData({ nombre_tutor: '', email_tutor: '', telefono_tutor: '' });
         setMostrarFormulario(false);
         await cargarRegistros();
+        setTimeout(() => setSuccess(''), 4000);
       } else {
-        setError(result.error || 'Error al guardar el registro');
+        setError(result.error || 'Error al guardar');
       }
     } catch (err) {
       setError('Error al procesar la solicitud');
@@ -129,26 +155,22 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       return;
     }
 
-    if (!confirm('¿Está seguro de eliminar este registro?')) {
-      return;
-    }
+    if (!confirm('¿Eliminar este registro?')) return;
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/registro-salida/eliminar/${id}`, {
-        method: 'DELETE',
-      });
-
+      const response = await fetch(`/api/registro-salida/eliminar/${id}`, { method: 'DELETE' });
       const result = await response.json();
 
       if (result.success) {
-        setSuccess('Registro eliminado exitosamente');
+        setSuccess('✅ Registro eliminado');
         await cargarRegistros();
+        setTimeout(() => setSuccess(''), 3000);
       } else {
         setError(result.error || 'Error al eliminar');
       }
     } catch (err) {
-      setError('Error al procesar la solicitud');
+      setError('Error al procesar');
     } finally {
       setLoading(false);
     }
@@ -156,207 +178,210 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
   if (loadingRegistros) {
     return (
-      <div className="text-center py-8">
-        <div className="loading-spinner mx-auto mb-4"></div>
-        <p className="text-sm opacity-60">Cargando registros...</p>
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="loading-spinner-modern mb-6"></div>
+        <p className="text-sm font-medium opacity-60">Cargando registros...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="registro-container">
+      {/* Alertas */}
       {success && (
-        <Alert
-          type="success"
-          title="¡Éxito!"
-          message={success}
-          onClose={() => setSuccess('')}
-        />
+        <div className="alert-success">
+          {success}
+        </div>
       )}
 
       {error && (
-        <Alert
-          type="error"
-          message={error}
-          onClose={() => setError('')}
-        />
+        <div className="alert-error">
+          ⚠️ {error}
+          <button onClick={() => setError('')} className="alert-close">×</button>
+        </div>
       )}
 
       {/* Registros Existentes */}
       {registrosExistentes.length > 0 && (
-        <Card title="Mis Registros de Salida" subtitle="Configuración actual">
-          <div className="space-y-4">
+        <div className="registros-existentes">
+          <h3 className="section-title">📋 Mis Registros Activos</h3>
+          <div className="registros-grid">
             {registrosExistentes.map((registro) => (
-              <div
-                key={registro.id}
-                className="flex items-start justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded ${
-                      registro.tipo_registro === 'permanente'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400'
-                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400'
-                    }`}>
-                      {registro.tipo_registro === 'permanente' ? 'Permanente' : 'Eventual'}
-                    </span>
-                  </div>
-                  <p className="font-semibold mb-1">
-                    Días: {registro.dias_semana?.map((d: string) => 
-                      d.charAt(0).toUpperCase() + d.slice(1)
-                    ).join(', ')}
-                  </p>
-                  <p className="text-sm opacity-75">Tutor: {registro.nombre_tutor}</p>
+              <div key={registro.id} className="registro-card">
+                <div className="registro-badge">
+                  {registro.tipo_registro === 'permanente' ? '🔄 Permanente' : '📅 Eventual'}
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
+                <div className="registro-dias">
+                  {registro.dias_semana?.map((d: string) => (
+                    <span key={d} className="dia-badge">
+                      {d.substring(0, 3)}
+                    </span>
+                  ))}
+                </div>
+                <p className="registro-tutor">👤 {registro.nombre_tutor}</p>
+                <button
                   onClick={() => handleEliminar(registro.id)}
                   disabled={!puedeModificar() || loading}
-                  className="ml-4"
+                  className="btn-eliminar"
                 >
-                  Eliminar
-                </Button>
+                  🗑️ Eliminar
+                </button>
               </div>
             ))}
-            {!puedeModificar() && (
-              <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                ⚠️ Solo puede modificar antes de la 1:00 PM
-              </p>
-            )}
           </div>
-        </Card>
-      )}
-
-      {/* Botón para mostrar formulario */}
-      {!mostrarFormulario && (
-        <div className="text-center">
-          <Button
-            onClick={() => setMostrarFormulario(true)}
-            disabled={!puedeModificar()}
-          >
-            + Nuevo Registro
-          </Button>
+          {!puedeModificar() && (
+            <p className="warning-text">⏰ Solo puede modificar antes de la 1:00 PM</p>
+          )}
         </div>
       )}
 
-      {/* Formulario Nuevo Registro */}
+      {/* Botón Nuevo Registro */}
+      {!mostrarFormulario && (
+        <div className="text-center">
+          <button
+            onClick={() => setMostrarFormulario(true)}
+            disabled={!puedeModificar()}
+            className="btn-nuevo"
+          >
+            ✨ Nuevo Registro
+          </button>
+        </div>
+      )}
+
+      {/* Formulario */}
       {mostrarFormulario && (
-        <Card title="Nuevo Registro" subtitle="Configure los días de salida a pie">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="formulario-card">
+          <h3 className="form-title">✨ Nuevo Registro de Salida</h3>
+          
+          <form onSubmit={handleSubmit} className="form-content">
             {/* Tipo de Registro */}
-            <div>
-              <label className="block text-sm font-semibold mb-3">Tipo de Registro</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTipoRegistro('permanente')}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    tipoRegistro === 'permanente'
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  <div className="font-semibold mb-1">Permanente</div>
-                  <div className="text-xs opacity-75">Se repite cada semana</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTipoRegistro('eventual')}
-                  className={`p-4 rounded-lg border-2 transition-all ${
-                    tipoRegistro === 'eventual'
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  <div className="font-semibold mb-1">Eventual</div>
-                  <div className="text-xs opacity-75">Semanas específicas</div>
-                </button>
-              </div>
+            <div className="tipo-selector">
+              <button
+                type="button"
+                onClick={() => setTipoRegistro('permanente')}
+                className={`tipo-btn ${tipoRegistro === 'permanente' ? 'active' : ''}`}
+              >
+                <span className="tipo-emoji">🔄</span>
+                <span className="tipo-label">Permanente</span>
+                <span className="tipo-desc">Cada semana</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipoRegistro('eventual')}
+                className={`tipo-btn ${tipoRegistro === 'eventual' ? 'active' : ''}`}
+              >
+                <span className="tipo-emoji">📅</span>
+                <span className="tipo-label">Eventual</span>
+                <span className="tipo-desc">Semanas específicas</span>
+              </button>
             </div>
 
             {/* Selector de Días */}
-            <div>
-              <label className="block text-sm font-semibold mb-3">
-                Días de la Semana (máximo 5)
-              </label>
-              <div className="grid grid-cols-5 gap-2">
-                {DIAS_SEMANA.map(({ value, label }) => (
+            <div className="dias-section">
+              <h4 className="dias-title">Días de la Semana <span className="dias-count">{diasSeleccionados.length}/5</span></h4>
+              <div className="dias-grid">
+                {DIAS_SEMANA.map(({ value, label, emoji }) => (
                   <button
                     key={value}
                     type="button"
                     onClick={() => toggleDia(value)}
-                    className={`p-3 rounded-lg text-sm font-medium transition-all ${
-                      diasSeleccionados.includes(value)
-                        ? 'bg-blue-600 text-white shadow-md scale-105'
-                        : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
-                    }`}
+                    className={`dia-card ${diasSeleccionados.includes(value) ? 'selected' : ''}`}
                   >
-                    {label.substring(0, 3)}
+                    <span className="dia-emoji">{emoji}</span>
+                    <span className="dia-label">{label}</span>
                   </button>
                 ))}
               </div>
-              <p className="text-xs mt-2 opacity-60">
-                {diasSeleccionados.length}/5 días seleccionados
-              </p>
             </div>
 
+            {/* Calendario para Eventual */}
+            {tipoRegistro === 'eventual' && (
+              <div className="semanas-section">
+                <h4 className="dias-title">📆 Seleccionar Semana</h4>
+                <div className="semanas-grid">
+                  {getProximasSemanas().map((semana, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setSemanaSeleccionada(semana)}
+                      className={`semana-card ${
+                        semanaSeleccionada?.getTime() === semana.getTime() ? 'selected' : ''
+                      }`}
+                    >
+                      <span className="semana-numero">Semana {index + 1}</span>
+                      <span className="semana-fecha">{formatearSemana(semana)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Datos del Tutor */}
-            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <Input
-                label="Nombre Completo del Tutor"
-                type="text"
-                placeholder="Ej: Juan Pérez López"
-                value={formData.nombre_tutor}
-                onChange={(e) => setFormData({ ...formData, nombre_tutor: e.target.value })}
-                required
-              />
+            <div className="tutor-section">
+              <h4 className="dias-title">👤 Datos del Tutor</h4>
+              
+              <div className="input-group">
+                <label>Nombre Completo</label>
+                <input
+                  type="text"
+                  placeholder="Juan Pérez López"
+                  value={formData.nombre_tutor}
+                  onChange={(e) => setFormData({ ...formData, nombre_tutor: e.target.value })}
+                  required
+                  className="form-input"
+                />
+              </div>
 
-              <Input
-                label="Correo Electrónico"
-                type="email"
-                placeholder="ejemplo@correo.com"
-                value={formData.email_tutor}
-                onChange={(e) => setFormData({ ...formData, email_tutor: e.target.value })}
-                required
-              />
+              <div className="input-group">
+                <label>Correo Electrónico</label>
+                <input
+                  type="email"
+                  placeholder="correo@ejemplo.com"
+                  value={formData.email_tutor}
+                  onChange={(e) => setFormData({ ...formData, email_tutor: e.target.value })}
+                  required
+                  className="form-input"
+                />
+              </div>
 
-              <Input
-                label="Teléfono"
-                type="tel"
-                placeholder="5551234567"
-                value={formData.telefono_tutor}
-                onChange={(e) => setFormData({ ...formData, telefono_tutor: e.target.value })}
-                required
-                maxLength={10}
-              />
+              <div className="input-group">
+                <label>Teléfono (10 dígitos)</label>
+                <input
+                  type="tel"
+                  placeholder="5551234567"
+                  value={formData.telefono_tutor}
+                  onChange={(e) => setFormData({ ...formData, telefono_tutor: e.target.value })}
+                  required
+                  maxLength={10}
+                  className="form-input"
+                />
+              </div>
             </div>
 
             {/* Botones */}
-            <div className="flex gap-3 pt-4">
-              <Button
+            <div className="form-actions">
+              <button
                 type="button"
-                variant="outline"
                 onClick={() => {
                   setMostrarFormulario(false);
                   setDiasSeleccionados([]);
+                  setSemanaSeleccionada(null);
                   setError('');
                 }}
-                className="flex-1"
+                className="btn-cancelar"
               >
                 Cancelar
-              </Button>
-              <Button 
-                type="submit" 
-                isLoading={loading} 
-                className="flex-1"
-                disabled={diasSeleccionados.length === 0}
+              </button>
+              <button
+                type="submit"
+                disabled={loading || diasSeleccionados.length === 0}
+                className="btn-guardar"
               >
-                Guardar Registro
-              </Button>
+                {loading ? '⏳ Guardando...' : '💾 Guardar Registro'}
+              </button>
             </div>
           </form>
-        </Card>
+        </div>
       )}
     </div>
   );
