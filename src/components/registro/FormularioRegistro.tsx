@@ -30,12 +30,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [mesActual, setMesActual] = useState(new Date());
 
-  const [formData, setFormData] = useState({
-    nombre_tutor: '',
-    email_tutor: '',
-    telefono_tutor: '',
-  });
-
   useEffect(() => {
     cargarRegistros();
   }, [alumno.alumno_ref]);
@@ -143,7 +137,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         tipo_registro: tipoRegistro,
         dias_semana: tipoRegistro === 'permanente' ? diasSeleccionados : null,
         fechas: tipoRegistro === 'eventual' ? fechasEventuales.map(f => f.toISOString().split('T')[0]) : null,
-        ...formData,
       };
 
       const response = await fetch('/api/registro-salida/crear', {
@@ -158,7 +151,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         setSuccess('✅ Registro guardado');
         setDiasSeleccionados([]);
         setFechasEventuales([]);
-        setFormData({ nombre_tutor: '', email_tutor: '', telefono_tutor: '' });
         setMostrarFormulario(false);
         await cargarRegistros();
         setTimeout(() => setSuccess(''), 4000);
@@ -254,7 +246,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
               </div>
             ))}
           </div>
-          <p className="mt-3 text-sm opacity-75">👤 {registroPermanente.nombre_tutor}</p>
         </div>
       )}
 
@@ -313,56 +304,23 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
           <form onSubmit={handleSubmit} className="form-content">
             {tipoRegistro === 'permanente' ? (
-              <>
-                <div className="dias-permanente-selector">
-                  <h4 className="selector-title">Días de la semana (máx. 5)</h4>
-                  <div className="dias-inline">
-                    {DIAS_SEMANA.map(({ value, label, short }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => toggleDia(value)}
-                        className={`dia-inline-btn ${diasSeleccionados.includes(value) ? 'selected' : ''}`}
-                        title={label}
-                      >
-                        <span className="dia-short">{short}</span>
-                        <span className="dia-full">{label}</span>
-                      </button>
-                    ))}
-                  </div>
+              <div className="dias-permanente-selector">
+                <h4 className="selector-title">Días de la semana (máx. 5)</h4>
+                <div className="dias-inline">
+                  {DIAS_SEMANA.map(({ value, label, short }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => toggleDia(value)}
+                      className={`dia-inline-btn ${diasSeleccionados.includes(value) ? 'selected' : ''}`}
+                      title={label}
+                    >
+                      <span className="dia-short">{short}</span>
+                      <span className="dia-full">{label}</span>
+                    </button>
+                  ))}
                 </div>
-
-                <div className="tutor-section">
-                  <h4 className="selector-title">👤 Datos del Tutor</h4>
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      placeholder="Nombre completo"
-                      value={formData.nombre_tutor}
-                      onChange={(e) => setFormData({ ...formData, nombre_tutor: e.target.value })}
-                      required
-                      className="form-input"
-                    />
-                    <input
-                      type="email"
-                      placeholder="Correo electrónico"
-                      value={formData.email_tutor}
-                      onChange={(e) => setFormData({ ...formData, email_tutor: e.target.value })}
-                      required
-                      className="form-input"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Teléfono (10 dígitos)"
-                      value={formData.telefono_tutor}
-                      onChange={(e) => setFormData({ ...formData, telefono_tutor: e.target.value })}
-                      required
-                      maxLength={10}
-                      className="form-input"
-                    />
-                  </div>
-                </div>
-              </>
+              </div>
             ) : (
               <div className="calendario-eventual">
                 <div className="calendario-header">

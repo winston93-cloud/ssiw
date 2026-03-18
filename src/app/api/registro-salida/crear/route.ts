@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { alumno_ref, tipo_registro, dias_semana, fechas, nombre_tutor, email_tutor, telefono_tutor } = body;
+    const { alumno_ref, tipo_registro, dias_semana, fechas } = body;
 
     if (!alumno_ref || !tipo_registro) {
       return NextResponse.json(
@@ -27,18 +27,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Si es permanente, verificar que no haya otro activo y validar datos tutor
+    // Si es permanente, verificar que no haya otro activo
     if (tipo_registro === 'permanente') {
       if (!dias_semana || dias_semana.length === 0) {
         return NextResponse.json(
           { success: false, error: 'Debe seleccionar días' },
-          { status: 400 }
-        );
-      }
-
-      if (!nombre_tutor || !email_tutor || !telefono_tutor) {
-        return NextResponse.json(
-          { success: false, error: 'Datos del tutor requeridos' },
           { status: 400 }
         );
       }
@@ -78,15 +71,15 @@ export async function POST(request: NextRequest) {
 
     if (tipo_registro === 'permanente') {
       dataToInsert.dias_semana = dias_semana;
-      dataToInsert.nombre_tutor = nombre_tutor;
-      dataToInsert.email_tutor = email_tutor;
-      dataToInsert.telefono_tutor = telefono_tutor;
+      dataToInsert.nombre_tutor = 'N/A';
+      dataToInsert.email_tutor = 'N/A';
+      dataToInsert.telefono_tutor = 'N/A';
       dataToInsert.cancelaciones_usadas = 0;
     } else {
       dataToInsert.fechas_especificas = fechas;
-      dataToInsert.nombre_tutor = nombre_tutor || 'N/A';
-      dataToInsert.email_tutor = email_tutor || 'N/A';
-      dataToInsert.telefono_tutor = telefono_tutor || 'N/A';
+      dataToInsert.nombre_tutor = 'N/A';
+      dataToInsert.email_tutor = 'N/A';
+      dataToInsert.telefono_tutor = 'N/A';
     }
 
     const { data: registro, error: registroError } = await supabase
