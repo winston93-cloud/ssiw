@@ -3,10 +3,10 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { alumnoRef: string } }
+  { params }: { params: Promise<{ alumnoRef: string }> }
 ) {
   try {
-    const { alumnoRef } = params;
+    const { alumnoRef } = await params;
     const { searchParams } = new URL(request.url);
     const mes = parseInt(searchParams.get('mes') || '0');
     const anio = parseInt(searchParams.get('anio') || '0');
