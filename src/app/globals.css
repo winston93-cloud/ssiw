@@ -684,6 +684,89 @@ body {
   gap: 1.5rem;
 }
 
+.overview-single {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.action-card-large {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 24px;
+  padding: 3rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.action-card-large::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.action-card-large:hover::before {
+  opacity: 1;
+}
+
+.action-card-large:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0, 51, 102, 0.5);
+}
+
+.action-icon-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+}
+
+.action-icon-large svg {
+  width: 40px;
+  height: 40px;
+}
+
+.action-card-large h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+}
+
+.action-card-large p {
+  opacity: 0.9;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.action-card-large .action-arrow {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  width: 32px;
+  height: 32px;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.action-card-large:hover .action-arrow {
+  opacity: 1;
+  transform: translateX(8px);
+}
+
 .stat-card {
   background: var(--card);
   border: 1px solid var(--border);
