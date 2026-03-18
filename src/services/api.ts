@@ -1,5 +1,3 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -9,7 +7,7 @@ export interface ApiResponse<T = any> {
 
 export async function verificarAlumno(alumnoRef: string): Promise<ApiResponse> {
   try {
-    const response = await fetch(`${API_URL}/api/registro-salida/verificar/${alumnoRef}`);
+    const response = await fetch(`/api/registro-salida/verificar/${alumnoRef}`);
     return await response.json();
   } catch (error) {
     return { success: false, error: 'Error al conectar con el servidor' };
@@ -24,7 +22,7 @@ export async function crearRegistro(data: {
   telefono_tutor: string;
 }): Promise<ApiResponse> {
   try {
-    const response = await fetch(`${API_URL}/api/registro-salida/crear`, {
+    const response = await fetch(`/api/registro-salida/crear`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -37,7 +35,7 @@ export async function crearRegistro(data: {
 
 export async function confirmarRegistro(token: string): Promise<ApiResponse> {
   try {
-    const response = await fetch(`${API_URL}/api/registro-salida/confirmar/${token}`);
+    const response = await fetch(`/api/registro-salida/confirmar/${token}`);
     return await response.json();
   } catch (error) {
     return { success: false, error: 'Error al conectar con el servidor' };
@@ -51,7 +49,7 @@ export async function obtenerFechasDisponibles(
 ): Promise<ApiResponse<string[]>> {
   try {
     const response = await fetch(
-      `${API_URL}/api/registro-salida/fechas-disponibles/${alumnoRef}?mes=${mes}&anio=${anio}`
+      `/api/registro-salida/fechas-disponibles/${alumnoRef}?mes=${mes}&anio=${anio}`
     );
     return await response.json();
   } catch (error) {

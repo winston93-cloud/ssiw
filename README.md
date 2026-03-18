@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Salida Institucional - Instituto Winston Churchill
 
-## Getting Started
+Sistema web para registro de salida a pie de alumnos.
 
-First, run the development server:
+## 🚀 Características
+
+- **Login con número de control** del alumno
+- **Dashboard personalizado** con información del estudiante
+- **Calendario interactivo** para seleccionar fechas disponibles
+- **Formulario de registro** para datos del tutor
+- **Confirmación por email** con Nodemailer
+- **Validación de fechas** (no permite duplicados ni fines de semana)
+
+## 🛠️ Tecnologías
+
+- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS 4
+- **Base de datos:** Supabase (PostgreSQL)
+- **Email:** Nodemailer
+- **Deployment:** Vercel
+
+## 📦 Instalación Local
+
+```bash
+npm install
+```
+
+## 🔐 Variables de Entorno
+
+Crear archivo `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+NEXT_PUBLIC_SITE_URL=https://tu-dominio.vercel.app
+```
+
+## 🗄️ Base de Datos
+
+Ejecutar el script SQL en Supabase:
+
+```sql
+-- Ver archivo database/schema.sql
+```
+
+## 🚀 Desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📧 Configuración de Email
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+El sistema usa Nodemailer con las credenciales configuradas en `src/lib/email.ts`:
 
-## Learn More
+- **Email:** avisos_no-replay@winston93.edu.mx
+- **SMTP:** Gmail (smtp.gmail.com:587)
 
-To learn more about Next.js, take a look at the following resources:
+## 🏗️ Estructura del Proyecto
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+ssiw/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── registro-salida/
+│   │   │       ├── verificar/[alumnoRef]/route.ts
+│   │   │       ├── crear/route.ts
+│   │   │       ├── confirmar/[token]/route.ts
+│   │   │       └── fechas-disponibles/[alumnoRef]/route.ts
+│   │   ├── login/page.tsx
+│   │   ├── dashboard/page.tsx
+│   │   ├── confirmar/[token]/page.tsx
+│   │   └── globals.css
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── Card.tsx
+│   │   │   └── Alert.tsx
+│   │   └── registro/
+│   │       ├── FormularioRegistro.tsx
+│   │       └── CalendarioSelector.tsx
+│   ├── lib/
+│   │   ├── supabase.ts
+│   │   └── email.ts
+│   ├── services/
+│   │   └── api.ts
+│   └── types/
+│       └── index.ts
+├── database/
+│   └── schema.sql
+└── package.json
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Colores Institucionales
 
-## Deploy on Vercel
+- **Primario:** #003366 (Azul oscuro)
+- **Secundario:** #6ca82e (Verde)
+- **Acento:** #e63946 (Rojo)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📝 Flujo del Sistema
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Login:** Usuario ingresa número de control (`alumno_ref`)
+2. **Dashboard:** Muestra información del alumno
+3. **Seleccionar Fecha:** Calendario con fechas disponibles
+4. **Formulario:** Captura datos del tutor
+5. **Email:** Se envía correo de confirmación
+6. **Confirmación:** Usuario hace clic en link del email
+7. **Registro Completo:** Fecha bloqueada en calendario
+
+## 🔒 Seguridad
+
+- Validación de datos en cliente y servidor
+- Tokens únicos con expiración de 24 horas
+- No permite duplicados de registros confirmados
+- Constraint de base de datos para integridad
+
+## 📄 Licencia
+
+© 2025 Instituto Winston Churchill
