@@ -7,13 +7,13 @@ export async function POST(request: NextRequest) {
     const { id, dia } = body;
 
     // Verificar hora límite
-    const ahora = new Date();
-    if (ahora.getHours() >= 13) {
-      return NextResponse.json(
-        { success: false, error: 'Solo puede cancelar antes de la 1:00 PM' },
-        { status: 400 }
-      );
-    }
+    // const ahora = new Date();
+    // if (ahora.getHours() >= 13) {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Solo puede cancelar antes de la 1:00 PM' },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Obtener registro
     const { data: registro, error: fetchError } = await insforge.database

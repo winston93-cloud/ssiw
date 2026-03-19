@@ -9,15 +9,15 @@ export async function DELETE(
     const { id } = await params;
 
     // Verificar hora límite (1pm)
-    const ahora = new Date();
-    const horaActual = ahora.getHours();
+    // const ahora = new Date();
+    // const horaActual = ahora.getHours();
     
-    if (horaActual >= 13) {
-      return NextResponse.json(
-        { success: false, error: 'Solo puede eliminar antes de la 1:00 PM' },
-        { status: 400 }
-      );
-    }
+    // if (horaActual >= 13) {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Solo puede eliminar antes de la 1:00 PM' },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Marcar como inactivo en lugar de eliminar
     const { error } = await insforge.database
