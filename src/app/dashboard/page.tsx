@@ -79,7 +79,14 @@ export default function DashboardPage() {
         <nav className="sidebar-nav">
           <button
             className={`nav-item ${activeView === 'overview' ? 'active' : ''}`}
-            onClick={() => { setActiveView('overview'); setMenuOpen(false); }}
+            onClick={() => { 
+              if (sidebarCollapsed) {
+                setSidebarCollapsed(false);
+              }
+              setActiveView('overview'); 
+              setMenuOpen(false); 
+            }}
+            title={sidebarCollapsed ? 'Inicio' : ''}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -89,7 +96,14 @@ export default function DashboardPage() {
 
           <button
             className={`nav-item ${activeView === 'calendario' ? 'active' : ''}`}
-            onClick={() => { setActiveView('calendario'); setMenuOpen(false); }}
+            onClick={() => { 
+              if (sidebarCollapsed) {
+                setSidebarCollapsed(false);
+              }
+              setActiveView('calendario'); 
+              setMenuOpen(false); 
+            }}
+            title={sidebarCollapsed ? 'Registro de Salida' : ''}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -99,7 +113,11 @@ export default function DashboardPage() {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="nav-item logout" onClick={handleLogout}>
+          <button 
+            className="nav-item logout" 
+            onClick={handleLogout}
+            title={sidebarCollapsed ? 'Cerrar Sesión' : ''}
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
