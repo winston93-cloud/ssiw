@@ -197,6 +197,36 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     }
   };
 
+  const handleCancelarFechaEventual = async (id: number, fecha: string) => {
+    if (!puedeModificar()) {
+      setError('Solo puede cancelar antes de la 1:00 PM');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/registro-salida/cancelar-fecha-eventual`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, fecha }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess('✅ Fecha eliminada');
+        await cargarRegistros();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(result.error || 'Error al eliminar fecha');
+      }
+    } catch (err) {
+      setError('Error al procesar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const cambiarMes = (direccion: number) => {
     setMesActual(new Date(mesActual.getFullYear(), mesActual.getMonth() + direccion, 1));
   };
@@ -289,7 +319,14 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                     month: 'short' 
                   })}</span>
                   <button
-                    onClick={() => handleCancelarDia(registro.id)}
+                    onClick={() => {
+                      if (confirm(`¿Eliminar el día ${new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { 
+                        day: 'numeric', 
+                        month: 'long' 
+                      })}?`)) {
+                        handleCancelarFechaEventual(registro.id, fecha);
+                      }
+                    }}
                     className="btn-cancelar-fecha"
                     disabled={loading}
                   >
