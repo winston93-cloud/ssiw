@@ -1,6 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@insforge/sdk';
 
-const insforgeUrl = process.env.NEXT_PUBLIC_INSFORGE_URL! + '/rest/v1'
+const insforgeUrl = process.env.NEXT_PUBLIC_INSFORGE_URL!
 const insforgeAnonKey = process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!
 
-export const insforge = createClient(insforgeUrl, insforgeAnonKey)
+export const insforge = createClient({
+  baseUrl: insforgeUrl,
+  anonKey: insforgeAnonKey
+});
