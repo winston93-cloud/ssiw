@@ -1240,6 +1240,45 @@ body {
   color: white;
 }
 
+/* Mejoras UX para fechas eventuales */
+.fechas-eventuales-grid-mejorado {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.fecha-eventual-item-mejorado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--primary-light);
+  transition: var(--transition-base);
+}
+
+.fecha-eventual-item-mejorado:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 51, 102, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .fecha-eventual-item-mejorado {
+    background: var(--card);
+    border-color: var(--primary);
+  }
+}
+
+.fecha-label-grande {
+  font-size: 1.25rem;
+  font-weight: var(--weight-bold);
+  color: var(--primary);
+  text-transform: capitalize;
+}
+
+
 /* Botón Nuevo */
 .btn-nuevo {
   padding: var(--space-4) var(--space-6);

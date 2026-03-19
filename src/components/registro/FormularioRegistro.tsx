@@ -309,32 +309,53 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       {/* Registros Eventuales */}
       {registrosEventuales.length > 0 && (
         <div className="registros-eventuales-card">
-          <h3 className="text-xl font-bold mb-4">📅 Días Eventuales</h3>
-          <div className="fechas-eventuales-grid">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-xl font-bold">📅 Días Eventuales</h3>
+              <p className="text-sm opacity-70 mt-1">
+                Días específicos para salida a pie
+              </p>
+            </div>
+          </div>
+          <div className="fechas-eventuales-grid-mejorado">
             {registrosEventuales.map((registro) => (
-              registro.fechas_especificas?.map((fecha: string) => (
-                <div key={`${registro.id}-${fecha}`} className="fecha-eventual-item">
-                  <span>{new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { 
-                    day: 'numeric', 
-                    month: 'short' 
-                  })}</span>
-                  <button
-                    onClick={() => {
-                      if (confirm(`¿Eliminar el día ${new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { 
+              registro.fechas_especificas?.map((fecha: string) => {
+                const fechaObj = new Date(fecha + 'T12:00:00');
+                const fechaFormateada = fechaObj.toLocaleDateString('es-MX', { 
+                  day: 'numeric', 
+                  month: 'long',
+                  year: 'numeric'
+                });
+                return (
+                  <div key={`${registro.id}-${fecha}`} className="fecha-eventual-item-mejorado">
+                    <span className="fecha-label-grande">
+                      {fechaObj.toLocaleDateString('es-MX', { 
                         day: 'numeric', 
-                        month: 'long' 
-                      })}?`)) {
-                        handleCancelarFechaEventual(registro.id, fecha);
-                      }
-                    }}
-                    className="btn-cancelar-fecha"
-                    disabled={loading}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))
+                        month: 'short' 
+                      })}
+                    </span>
+                    <button
+                      onClick={() => {
+                        if (confirm(`¿Eliminar el día ${fechaFormateada}?`)) {
+                          handleCancelarFechaEventual(registro.id, fecha);
+                        }
+                      }}
+                      className="btn-cancelar-dia-mejorado"
+                      disabled={loading}
+                      title="Eliminar esta fecha"
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </div>
+                );
+              })
             ))}
+          </div>
+          <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
+            <p className="text-sm">
+              ℹ️ <strong>Nota:</strong> Estos son días específicos que has seleccionado. 
+              Puedes eliminarlos individualmente usando el botón "Eliminar".
+            </p>
           </div>
         </div>
       )}
