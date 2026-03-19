@@ -226,26 +226,52 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       {registroPermanente && (
         <div className="registro-permanente-card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold">🔄 Registro Permanente</h3>
-            <span className="text-sm opacity-60">
-              Cancelaciones: {registroPermanente.cancelaciones_usadas || 0}/5
-            </span>
+            <div>
+              <h3 className="text-xl font-bold">🔄 Registro Permanente Activo</h3>
+              <p className="text-sm opacity-70 mt-1">
+                Estos días se repiten cada semana de todos los meses
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="text-sm font-semibold">
+                Cancelaciones usadas: {registroPermanente.cancelaciones_usadas || 0}/5
+              </span>
+              <p className="text-xs opacity-60 mt-1">
+                Puedes cancelar hasta 5 días individuales
+              </p>
+            </div>
           </div>
           <div className="dias-permanente-display">
-            {registroPermanente.dias_semana?.map((dia: string) => (
-              <div key={dia} className="dia-permanente-item">
-                <span className="dia-label-permanent">{dia}</span>
-                {(registroPermanente.cancelaciones_usadas || 0) < 5 && (
-                  <button
-                    onClick={() => handleCancelarDia(registroPermanente.id, dia)}
-                    className="btn-cancelar-dia"
-                    disabled={loading}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))}
+            {registroPermanente.dias_semana?.map((dia: string) => {
+              const diaLabel = dia.charAt(0).toUpperCase() + dia.slice(1);
+              return (
+                <div key={dia} className="dia-permanente-item-mejorado">
+                  <span className="dia-label-permanent-grande">{diaLabel}</span>
+                  {(registroPermanente.cancelaciones_usadas || 0) < 5 ? (
+                    <button
+                      onClick={() => {
+                        if (confirm(`¿Cancelar "${diaLabel}" permanentemente?\n\nEsto contará como 1 de tus 5 cancelaciones permitidas.`)) {
+                          handleCancelarDia(registroPermanente.id, dia);
+                        }
+                      }}
+                      className="btn-cancelar-dia-mejorado"
+                      disabled={loading}
+                      title="Cancelar este día"
+                    >
+                      🗑️ Cancelar
+                    </button>
+                  ) : (
+                    <span className="text-xs opacity-50">Sin cancelaciones</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
+            <p className="text-sm">
+              ℹ️ <strong>Nota:</strong> Este registro se aplica automáticamente cada semana. 
+              Si necesitas cancelar un día específico, usa el botón "Cancelar" (límite: 5 cancelaciones).
+            </p>
           </div>
         </div>
       )}
