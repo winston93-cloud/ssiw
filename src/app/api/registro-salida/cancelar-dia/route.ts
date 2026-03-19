@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { insforge } from '@/lib/insforge';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener registro
-    const { data: registro, error: fetchError } = await supabase
+    const { data: registro, error: fetchError } = await insforge
       .from('registro_salida_pie')
       .select('*')
       .eq('id', id)
@@ -43,13 +43,13 @@ export async function POST(request: NextRequest) {
       
       if (nuevosDias.length === 0) {
         // Si ya no quedan días, desactivar
-        await supabase
+        await insforge
           .from('registro_salida_pie')
           .update({ activo: false })
           .eq('id', id);
       } else {
         // Actualizar días y contador
-        await supabase
+        await insforge
           .from('registro_salida_pie')
           .update({
             dias_semana: nuevosDias,
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Eventual: simplemente desactivar
-      await supabase
+      await insforge
         .from('registro_salida_pie')
         .update({ activo: false })
         .eq('id', id);

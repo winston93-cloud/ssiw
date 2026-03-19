@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { queryMySQL } from '@/lib/mysql';
 
 export async function GET(
   request: NextRequest,
@@ -8,13 +8,13 @@ export async function GET(
   try {
     const { alumnoRef } = await params;
 
-    const { data: alumno, error } = await supabase
-      .from('alumno')
-      .select('*')
-      .eq('alumno_ref', alumnoRef)
-      .single();
+    // Consultar alumno en MySQL
+    const { data: alumnos, error } = await queryMySQL(
+      'SELECT * FROM alumno WHERE alumno_ref = ? LIMIT 1',
+      [alumnoRef]
+    );
 
-    if (error || !alumno) {
+    if (error || !alumnos || (alumnos as any[]).length === 0) {
       return NextResponse.json(
         { success: false, error: 'Alumno no encontrado' },
         { status: 404 }
@@ -23,7 +23,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: alumno,
+      data: (alumnos as any[])[0],
     });
   } catch (error) {
     console.error('Error al verificar alumno:', error);

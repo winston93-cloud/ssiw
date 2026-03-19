@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { insforge } from '@/lib/insforge';
 
 export async function DELETE(
   request: NextRequest,
@@ -20,7 +20,7 @@ export async function DELETE(
     }
 
     // Marcar como inactivo en lugar de eliminar
-    const { error } = await supabase
+    const { error } = await insforge
       .from('registro_salida_pie')
       .update({ activo: false })
       .eq('id', parseInt(id));

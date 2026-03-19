@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { insforge } from '@/lib/insforge';
+import { queryMySQL } from '@/lib/mysql';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,14 +14,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar alumno
-    const { data: alumno, error: alumnoError } = await supabase
-      .from('alumno')
-      .select('*')
-      .eq('alumno_ref', alumno_ref)
-      .single();
+    // Verificar alumno en MySQL
+    const { data: alumnos, error: alumnoError } = await queryMySQL(
+      'SELECT * FROM alumno WHERE alumno_ref = ? LIMIT 1',
+      [alumno_ref]
+    );
 
-    if (alumnoError || !alumno) {
+    if (alumnoError || !alumnos || (alumnos as any[]).length === 0) {
       return NextResponse.json(
         { success: false, error: 'Alumno no encontrado' },
         { status: 404 }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { data: existente } = await supabase
+      const { data: existente } = await insforge
         .from('registro_salida_pie')
         .select('*')
         .eq('alumno_ref', alumno_ref)
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       dataToInsert.telefono_tutor = 'N/A';
     }
 
-    const { data: registro, error: registroError } = await supabase
+    const { data: registro, error: registroError } = await insforge
       .from('registro_salida_pie')
       .insert(dataToInsert)
       .select()

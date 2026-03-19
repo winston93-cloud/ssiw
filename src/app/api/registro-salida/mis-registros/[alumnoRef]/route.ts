@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { insforge } from '@/lib/insforge';
 
 export async function GET(
   request: NextRequest,
@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { alumnoRef } = await params;
 
-    const { data: registros, error } = await supabase
+    const { data: registros, error } = await insforge
       .from('registro_salida_pie')
       .select('*')
       .eq('alumno_ref', alumnoRef)
