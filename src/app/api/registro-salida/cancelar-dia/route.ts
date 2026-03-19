@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Eventual: simplemente desactivar
-      await insforge
+      await insforge.database
         .from('registro_salida_pie')
         .update({ activo: false })
         .eq('id', id);
