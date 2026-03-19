@@ -12,10 +12,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Cancelando fecha eventual:', { id, fecha });
+
     // Obtener el registro actual
     const { data: registroActual, error: errorGet } = await insforge.database
       .from('registro_salida_pie')
-      .select('fechas_especificas')
+      .select('fechas_especificas, tipo_registro')
       .eq('id', id)
       .single();
 
@@ -27,16 +29,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Registro actual:', registroActual);
+
     // Filtrar la fecha a eliminar del array
     const fechasActualizadas = (registroActual.fechas_especificas || []).filter(
       (f: string) => f !== fecha
     );
 
+    console.log('Fechas después de filtrar:', fechasActualizadas);
+
     // Si no quedan fechas, desactivar el registro
     if (fechasActualizadas.length === 0) {
+      console.log('No quedan fechas, desactivando registro');
+      
       const { error: errorDelete } = await insforge.database
         .from('registro_salida_pie')
-        .update({ activo: false })
+        .update({ 
+          activo: false,
+          fechas_especificas: []
+        })
         .eq('id', id);
 
       if (errorDelete) {
@@ -47,6 +58,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      console.log('Registro desactivado exitosamente');
       return NextResponse.json({ 
         success: true, 
         message: 'Última fecha eliminada, registro desactivado' 
@@ -54,6 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Actualizar el array de fechas
+    console.log('Actualizando fechas del registro');
     const { error: errorUpdate } = await insforge.database
       .from('registro_salida_pie')
       .update({ fechas_especificas: fechasActualizadas })
@@ -67,6 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Fechas actualizadas exitosamente');
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Error al cancelar fecha eventual:', error);
