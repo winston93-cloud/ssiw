@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { alumnoRef } = await params;
 
-    const { data: registros, error } = await insforge
+    const { data: registros, error } = await insforge.database
       .from('registro_salida_pie')
       .select('*')
       .eq('alumno_ref', alumnoRef)

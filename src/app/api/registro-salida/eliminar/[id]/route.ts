@@ -20,7 +20,7 @@ export async function DELETE(
     }
 
     // Marcar como inactivo en lugar de eliminar
-    const { error } = await insforge
+    const { error } = await insforge.database
       .from('registro_salida_pie')
       .update({ activo: false })
       .eq('id', parseInt(id));

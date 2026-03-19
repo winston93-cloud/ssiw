@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { data: existente } = await insforge
-        .from('registro_salida_pie')
+    const { data: existente } = await insforge.database
+      .from('registro_salida_pie')
         .select('*')
         .eq('alumno_ref', alumno_ref)
         .eq('tipo_registro', 'permanente')
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       dataToInsert.telefono_tutor = 'N/A';
     }
 
-    const { data: registro, error: registroError } = await insforge
+    const { data: registro, error: registroError } = await insforge.database
       .from('registro_salida_pie')
       .insert(dataToInsert)
       .select()

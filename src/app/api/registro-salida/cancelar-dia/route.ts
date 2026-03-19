@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener registro
-    const { data: registro, error: fetchError } = await insforge
+    const { data: registro, error: fetchError } = await insforge.database
       .from('registro_salida_pie')
       .select('*')
       .eq('id', id)
@@ -43,13 +43,13 @@ export async function POST(request: NextRequest) {
       
       if (nuevosDias.length === 0) {
         // Si ya no quedan días, desactivar
-        await insforge
+        await insforge.database
           .from('registro_salida_pie')
           .update({ activo: false })
           .eq('id', id);
       } else {
         // Actualizar días y contador
-        await insforge
+        await insforge.database
           .from('registro_salida_pie')
           .update({
             dias_semana: nuevosDias,
