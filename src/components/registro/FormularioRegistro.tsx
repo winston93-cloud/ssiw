@@ -303,10 +303,32 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       )}
 
       {/* Botón Nuevo */}
-      {!mostrarFormulario && (
+      {!mostrarFormulario && !registroPermanente && (
         <div className="text-center">
           <button onClick={() => setMostrarFormulario(true)} className="btn-nuevo">
             ✨ Nuevo Registro
+          </button>
+        </div>
+      )}
+
+      {/* Mensaje cuando ya hay permanente */}
+      {!mostrarFormulario && registroPermanente && (
+        <div className="text-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-700">
+          <p className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+            ℹ️ Ya tienes un registro permanente activo
+          </p>
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            Este registro se aplica automáticamente cada semana de todos los meses. 
+            Si necesitas agregar días eventuales específicos, usa el botón de abajo.
+          </p>
+          <button 
+            onClick={() => {
+              setTipoRegistro('eventual');
+              setMostrarFormulario(true);
+            }} 
+            className="btn-nuevo mt-4"
+          >
+            📅 Agregar Día Eventual
           </button>
         </div>
       )}
@@ -315,12 +337,14 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       {mostrarFormulario && (
         <div className="formulario-card">
           <div className="tipo-selector-tabs">
-            <button
-              onClick={() => setTipoRegistro('permanente')}
-              className={`tipo-tab ${tipoRegistro === 'permanente' ? 'active' : ''}`}
-            >
-              🔄 Permanente
-            </button>
+            {!registroPermanente && (
+              <button
+                onClick={() => setTipoRegistro('permanente')}
+                className={`tipo-tab ${tipoRegistro === 'permanente' ? 'active' : ''}`}
+              >
+                🔄 Permanente
+              </button>
+            )}
             <button
               onClick={() => setTipoRegistro('eventual')}
               className={`tipo-tab ${tipoRegistro === 'eventual' ? 'active' : ''}`}
@@ -331,22 +355,33 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
           <form onSubmit={handleSubmit} className="form-content">
             {tipoRegistro === 'permanente' ? (
-              <div className="dias-permanente-selector">
-                <h4 className="selector-title">Días de la semana (máx. 5)</h4>
-                <div className="dias-inline">
-                  {DIAS_SEMANA.map(({ value, label, short }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => toggleDia(value)}
-                      className={`dia-inline-btn ${diasSeleccionados.includes(value) ? 'selected' : ''}`}
-                      title={label}
-                    >
-                      <span className="dia-full">{label}</span>
-                    </button>
-                  ))}
+              registroPermanente ? (
+                <div className="p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-2 border-yellow-200 dark:border-yellow-700">
+                  <p className="font-semibold text-yellow-900 dark:text-yellow-100">
+                    ⚠️ Ya existe un registro permanente
+                  </p>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-2">
+                    Solo puedes tener un registro permanente activo. Usa la opción "Eventual" para días específicos.
+                  </p>
                 </div>
-              </div>
+              ) : (
+                <div className="dias-permanente-selector">
+                  <h4 className="selector-title">Días de la semana (máx. 5)</h4>
+                  <div className="dias-inline">
+                    {DIAS_SEMANA.map(({ value, label, short }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => toggleDia(value)}
+                        className={`dia-inline-btn ${diasSeleccionados.includes(value) ? 'selected' : ''}`}
+                        title={label}
+                      >
+                        <span className="dia-full">{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
             ) : (
               <div className="calendario-eventual">
                 <div className="calendario-header">
