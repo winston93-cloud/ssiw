@@ -1,0 +1,1 @@
+INSERT INTO alumno (alumno_ref) VALUES ('10001'), ('10002'), ('10003'), ('10004'), ('10005');

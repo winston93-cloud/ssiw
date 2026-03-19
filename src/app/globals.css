@@ -1170,6 +1170,13 @@ body {
   text-transform: capitalize;
 }
 
+@media (prefers-color-scheme: dark) {
+  .dia-label-permanent-grande {
+    color: var(--foreground);
+  }
+}
+
+
 .btn-cancelar-dia-mejorado {
   padding: var(--space-2) var(--space-3);
   background: rgba(239, 68, 68, 0.1);
