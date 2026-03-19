@@ -316,7 +316,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                       className={`dia-inline-btn ${diasSeleccionados.includes(value) ? 'selected' : ''}`}
                       title={label}
                     >
-                      <span className="dia-short">{short}</span>
                       <span className="dia-full">{label}</span>
                     </button>
                   ))}
