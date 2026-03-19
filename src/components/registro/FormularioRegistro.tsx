@@ -396,7 +396,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
                 <div className="calendario-grid">
                   <div className="calendario-dias-semana">
-                    {['D', 'L', 'M', 'X', 'J', 'V', 'S'].map((d) => (
+                    {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((d) => (
                       <div key={d} className="dia-semana-header">{d}</div>
                     ))}
                   </div>
