@@ -1257,6 +1257,8 @@ body {
   border-radius: var(--radius-lg);
   border: 2px solid var(--primary-light);
   transition: var(--transition-base);
+  min-height: 100px;
+  justify-content: center;
 }
 
 .fecha-eventual-item-mejorado:hover {
@@ -1269,6 +1271,10 @@ body {
     background: var(--card);
     border-color: var(--primary);
   }
+  
+  .fecha-eventual-item-mejorado:hover {
+    box-shadow: 0 4px 12px rgba(102, 178, 255, 0.2);
+  }
 }
 
 .fecha-label-grande {
@@ -1277,6 +1283,13 @@ body {
   color: var(--primary);
   text-transform: capitalize;
 }
+
+@media (prefers-color-scheme: dark) {
+  .fecha-label-grande {
+    color: var(--foreground);
+  }
+}
+
 
 
 /* Botón Nuevo */
