@@ -660,8 +660,14 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                   <h4 className="familiar-nombre">
                     {familiar.familiar_nombre} {familiar.familiar_app} {familiar.familiar_apm}
                   </h4>
-                  {familiar.tutor_id > 0 && (
-                    <span className="badge-tutor">Tutor</span>
+                  {familiar.tutor_id === 1 && (
+                    <span className="badge-padre">👨 Padre</span>
+                  )}
+                  {familiar.tutor_id === 2 && (
+                    <span className="badge-madre">👩 Madre</span>
+                  )}
+                  {familiar.tutor_id > 2 && (
+                    <span className="badge-tutor">👨‍👩‍👧 Tutor</span>
                   )}
                   {familiar.familiar_tel && (
                     <p className="familiar-dato">📞 {familiar.familiar_tel}</p>
@@ -758,14 +764,17 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                   />
                 </div>
                 <div className="form-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={formFamiliar.tutor_id > 0}
-                      onChange={(e) => setFormFamiliar({...formFamiliar, tutor_id: e.target.checked ? 1 : 0})}
-                    />
-                    <span>Es tutor/a del alumno</span>
-                  </label>
+                  <label>Relación con el alumno</label>
+                  <select
+                    value={formFamiliar.tutor_id}
+                    onChange={(e) => setFormFamiliar({...formFamiliar, tutor_id: parseInt(e.target.value)})}
+                    className="input-familiar"
+                  >
+                    <option value={0}>Familiar autorizado</option>
+                    <option value={1}>👨 Padre</option>
+                    <option value={2}>👩 Madre</option>
+                    <option value={3}>👨‍👩‍👧 Otro tutor</option>
+                  </select>
                 </div>
                 <div className="form-actions">
                   <button

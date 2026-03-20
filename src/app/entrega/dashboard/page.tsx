@@ -408,7 +408,13 @@ export default function EntregaDashboardPage() {
                           <h4 className="modal-familiar-nombre">
                             {familiar.familiar_nombre} {familiar.familiar_app} {familiar.familiar_apm}
                           </h4>
-                          {familiar.tutor_id > 0 && (
+                          {familiar.tutor_id === 1 && (
+                            <span className="modal-badge-padre">👨 Padre</span>
+                          )}
+                          {familiar.tutor_id === 2 && (
+                            <span className="modal-badge-madre">👩 Madre</span>
+                          )}
+                          {familiar.tutor_id > 2 && (
                             <span className="modal-badge-tutor">👨‍👩‍👧 Tutor</span>
                           )}
                         </div>

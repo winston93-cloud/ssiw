@@ -2478,6 +2478,28 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.badge-padre {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.badge-madre {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  color: white;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
 .familiar-dato {
   font-size: 0.85rem;
   color: var(--muted-foreground);
