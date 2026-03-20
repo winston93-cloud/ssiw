@@ -58,31 +58,28 @@ export default function EntregaDashboardPage() {
     }
   };
 
-  const handleEntregar = async (alumno_ref: string, nombre: string) => {
+  const handleToggleEntrega = async (alumno_ref: string, yaEntregado: boolean) => {
     if (!maestra) return;
-    
-    if (!confirm(`¿Confirmar entrega de ${nombre}?`)) return;
 
     setRegistrando(alumno_ref);
     try {
-      const response = await fetch('/api/entrega/registrar', {
+      const endpoint = yaEntregado ? '/api/entrega/deshacer' : '/api/entrega/registrar';
+      const body = yaEntregado 
+        ? { alumno_ref }
+        : { alumno_ref, maestra_id: maestra.id, maestra_nombre: maestra.nombre };
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          alumno_ref,
-          maestra_id: maestra.id,
-          maestra_nombre: maestra.nombre
-        })
+        body: JSON.stringify(body)
       });
 
       const data = await response.json();
       if (data.success) {
         await cargarAlumnos();
-      } else {
-        alert('Error: ' + data.error);
       }
     } catch (error) {
-      alert('Error al registrar entrega');
+      console.error('Error al toggle entrega:', error);
     } finally {
       setRegistrando(null);
     }
@@ -287,34 +284,32 @@ export default function EntregaDashboardPage() {
                   </div>
 
                   <div className="alumno-actions">
-                    {alumno.entregado ? (
-                      <div className="status-badge status-success">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Entregado
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleEntregar(alumno.alumno_ref, alumno.nombre_completo)}
-                        disabled={registrando === alumno.alumno_ref}
-                        className="btn-entregar"
-                      >
-                        {registrando === alumno.alumno_ref ? (
-                          <>
-                            <div className="spinner-small"></div>
-                            Registrando...
-                          </>
-                        ) : (
-                          <>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Entregar Alumno
-                          </>
-                        )}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleToggleEntrega(alumno.alumno_ref, alumno.entregado)}
+                      disabled={registrando === alumno.alumno_ref}
+                      className={alumno.entregado ? "btn-deshacer" : "btn-entregar"}
+                    >
+                      {registrando === alumno.alumno_ref ? (
+                        <>
+                          <div className="spinner-small"></div>
+                          {alumno.entregado ? 'Deshaciendo...' : 'Registrando...'}
+                        </>
+                      ) : alumno.entregado ? (
+                        <>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                          </svg>
+                          Deshacer Entrega
+                        </>
+                      ) : (
+                        <>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                          </svg>
+                          Entregar Alumno
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               ))

@@ -406,6 +406,31 @@
   height: 14px;
 }
 
+.btn-deshacer {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s;
+}
+
+.btn-deshacer:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.btn-deshacer svg {
+  width: 14px;
+  height: 14px;
+}
+
 .status-badge {
   display: flex;
   align-items: center;
