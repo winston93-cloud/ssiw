@@ -3,6 +3,7 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
+  tipo?: 'alumno' | 'maestra';
 }
 
 export async function verificarAlumno(alumnoRef: string): Promise<ApiResponse> {
