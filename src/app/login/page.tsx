@@ -29,8 +29,15 @@ export default function LoginPage() {
       const response = await verificarAlumno(alumnoRef.trim());
 
       if (response.success && response.data) {
-        localStorage.setItem('alumno', JSON.stringify(response.data));
-        router.push('/dashboard');
+        if (response.tipo === 'maestra') {
+          // Es una maestra
+          localStorage.setItem('maestra', JSON.stringify(response.data));
+          router.push('/dashboard'); // Van al mismo dashboard
+        } else {
+          // Es un alumno/papa
+          localStorage.setItem('alumno', JSON.stringify(response.data));
+          router.push('/dashboard');
+        }
       } else {
         setError(response.error || 'Número de control no encontrado');
       }

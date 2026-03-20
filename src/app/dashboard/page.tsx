@@ -8,6 +8,7 @@ import FormularioRegistro from '@/components/registro/FormularioRegistro';
 export default function DashboardPage() {
   const router = useRouter();
   const [alumno, setAlumno] = useState<Alumno | null>(null);
+  const [maestra, setMaestra] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   const [activeView, setActiveView] = useState<'overview' | 'calendario'>('overview');
   const [menuOpen, setMenuOpen] = useState(true);
@@ -21,19 +22,24 @@ export default function DashboardPage() {
     if (!mounted) return;
     
     const alumnoData = localStorage.getItem('alumno');
-    if (!alumnoData) {
-      router.push('/login');
-    } else {
+    const maestraData = localStorage.getItem('maestra');
+    
+    if (maestraData) {
+      setMaestra(JSON.parse(maestraData));
+    } else if (alumnoData) {
       setAlumno(JSON.parse(alumnoData));
+    } else {
+      router.push('/login');
     }
   }, [mounted, router]);
 
   const handleLogout = () => {
     localStorage.removeItem('alumno');
+    localStorage.removeItem('maestra');
     router.push('/login');
   };
 
-  if (!mounted || !alumno) {
+  if (!mounted || (!alumno && !maestra)) {
     return (
       <div className="dashboard-loading">
         <div className="loading-spinner"></div>
@@ -42,9 +48,11 @@ export default function DashboardPage() {
     );
   }
 
-  const nombreCompleto = alumno.alumno_nombre_completo || 
-    `${alumno.alumno_nombre} ${alumno.alumno_app} ${alumno.alumno_apm}`;
-  const nivel = getNivelEducativo(alumno.alumno_nivel);
+  const nombreCompleto = maestra 
+    ? maestra.nombre 
+    : (alumno?.alumno_nombre_completo || 
+      `${alumno?.alumno_nombre} ${alumno?.alumno_app} ${alumno?.alumno_apm}`);
+  const nivel = alumno ? getNivelEducativo(alumno.alumno_nivel) : '';
 
   return (
     <main className="dashboard">
@@ -141,11 +149,14 @@ export default function DashboardPage() {
 
           <div className="header-user">
             <div className="user-avatar">
-              {alumno.alumno_nombre?.[0]}{alumno.alumno_app?.[0]}
+              {maestra 
+                ? maestra.nombre.substring(0, 2).toUpperCase()
+                : `${alumno?.alumno_nombre?.[0]}${alumno?.alumno_app?.[0]}`
+              }
             </div>
             <div className="user-info">
               <span className="user-name">{nombreCompleto}</span>
-              <span className="user-role">{alumno.alumno_ref}</span>
+              <span className="user-role">{maestra ? maestra.id : alumno?.alumno_ref}</span>
             </div>
           </div>
         </header>
@@ -153,22 +164,41 @@ export default function DashboardPage() {
         <div className="dashboard-content">
           {activeView === 'overview' && (
             <div className="overview-single-left">
-              <div className="action-card-large" onClick={() => setActiveView('calendario')}>
-                <div className="action-icon-large">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              {/* Tarjeta para PADRES */}
+              {alumno && (
+                <div className="action-card-large" onClick={() => setActiveView('calendario')}>
+                  <div className="action-icon-large">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+                  <h3>Registro de Salida</h3>
+                  <p>Registre la salida a pie de sus hijos</p>
+                  <svg className="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
                   </svg>
                 </div>
-                <h3>Registro de Salida</h3>
-                <p>Registre la salida a pie de sus hijos</p>
-                <svg className="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
+              )}
+
+              {/* Tarjeta para MAESTRAS */}
+              {maestra && (
+                <div className="action-card-large" onClick={() => router.push('/entrega/dashboard')}>
+                  <div className="action-icon-large">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <h3>Entrega a Pie</h3>
+                  <p>Registre la entrega de alumnos</p>
+                  <svg className="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              )}
             </div>
           )}
 
-          {activeView === 'calendario' && (
+          {activeView === 'calendario' && alumno && (
             <div className="calendario-section">
               <FormularioRegistro alumno={alumno} />
             </div>
