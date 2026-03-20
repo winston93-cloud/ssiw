@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Verificar si ya existe un eventual activo con las mismas fechas
+      // Verificar si ya existe un eventual activo
       const { data: eventualesExistentes } = await insforge.database
         .from('registro_salida_pie')
         .select('*')
@@ -76,29 +76,59 @@ export async function POST(request: NextRequest) {
         .eq('tipo_registro', 'eventual')
         .eq('activo', true);
 
-      // Si hay registros eventuales existentes, agregar fechas al existente en lugar de crear uno nuevo
+      // Si hay registros eventuales existentes
       if (eventualesExistentes && eventualesExistentes.length > 0) {
-        const registroExistente = eventualesExistentes[0];
-        const fechasExistentes = registroExistente.fechas_especificas || [];
-        const fechasNuevas = [...new Set([...fechasExistentes, ...fechas])]; // Eliminar duplicados
-
-        const { error: updateError } = await insforge.database
-          .from('registro_salida_pie')
-          .update({ fechas_especificas: fechasNuevas })
-          .eq('id', registroExistente.id);
-
-        if (updateError) {
-          return NextResponse.json(
-            { success: false, error: 'Error al actualizar fechas' },
-            { status: 500 }
-          );
+        // Limpiar registros vacíos (sin fechas)
+        const registrosVacios = eventualesExistentes.filter(
+          r => !r.fechas_especificas || r.fechas_especificas.length === 0
+        );
+        
+        if (registrosVacios.length > 0) {
+          await insforge.database
+            .from('registro_salida_pie')
+            .update({ activo: false })
+            .in('id', registrosVacios.map(r => r.id));
         }
 
-        return NextResponse.json({
-          success: true,
-          message: 'Fechas agregadas al registro existente',
-          data: { ...registroExistente, fechas_especificas: fechasNuevas },
-        });
+        // Obtener registros válidos (con fechas)
+        const registrosValidos = eventualesExistentes.filter(
+          r => r.fechas_especificas && r.fechas_especificas.length > 0
+        );
+
+        if (registrosValidos.length > 0) {
+          // Si hay múltiples, consolidar en uno solo
+          const registroPrincipal = registrosValidos[0];
+          const todasLasFechas = registrosValidos.flatMap(r => r.fechas_especificas || []);
+          const fechasConsolidadas = [...new Set([...todasLasFechas, ...fechas])]; // Eliminar duplicados
+
+          // Desactivar los demás registros duplicados
+          if (registrosValidos.length > 1) {
+            const idsADesactivar = registrosValidos.slice(1).map(r => r.id);
+            await insforge.database
+              .from('registro_salida_pie')
+              .update({ activo: false })
+              .in('id', idsADesactivar);
+          }
+
+          // Actualizar el principal con todas las fechas
+          const { error: updateError } = await insforge.database
+            .from('registro_salida_pie')
+            .update({ fechas_especificas: fechasConsolidadas })
+            .eq('id', registroPrincipal.id);
+
+          if (updateError) {
+            return NextResponse.json(
+              { success: false, error: 'Error al actualizar fechas' },
+              { status: 500 }
+            );
+          }
+
+          return NextResponse.json({
+            success: true,
+            message: 'Fechas agregadas al registro existente',
+            data: { ...registroPrincipal, fechas_especificas: fechasConsolidadas },
+          });
+        }
       }
     }
 
