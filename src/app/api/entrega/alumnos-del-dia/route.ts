@@ -55,23 +55,41 @@ export async function GET(request: NextRequest) {
         
         const alumno = alumnoData && (alumnoData as any[]).length > 0 ? (alumnoData as any[])[0] : null;
         
-        // Determinar nivel educativo
+        // Determinar nivel educativo y formatear grado
         let nivelEducativo = 'Sin nivel';
+        let gradoFormateado = '?';
+        
         if (alumno) {
           const nivel = parseInt(alumno.alumno_nivel) || 0;
+          const grado = parseInt(alumno.alumno_grado) || parseInt(alumno.grado) || 0;
+          
           switch (nivel) {
-            case 1: nivelEducativo = 'Maternal'; break;
-            case 2: nivelEducativo = 'Kinder'; break;
-            case 3: nivelEducativo = 'Primaria'; break;
-            case 4: nivelEducativo = 'Secundaria'; break;
+            case 1: // Maternal
+              nivelEducativo = 'Maternal';
+              gradoFormateado = grado === 1 ? 'Maternal A' : grado === 2 ? 'Maternal B' : `Mat ${grado}`;
+              break;
+            case 2: // Kinder
+              nivelEducativo = 'Kinder';
+              gradoFormateado = `Kinder ${grado}`;
+              break;
+            case 3: // Primaria
+              nivelEducativo = 'Primaria';
+              const ordinales = ['', '1er', '2do', '3er', '4to', '5to', '6to'];
+              gradoFormateado = ordinales[grado] ? `${ordinales[grado]} Grado` : `${grado}° Grado`;
+              break;
+            case 4: // Secundaria
+              nivelEducativo = 'Secundaria';
+              const ordinalesSec = ['', '', '', '', '', '', '', '7mo', '8vo', '9no'];
+              gradoFormateado = ordinalesSec[grado] ? `${ordinalesSec[grado]} Grado` : `${grado}° Grado`;
+              break;
           }
         }
         
         return {
           alumno_ref: reg.alumno_ref,
           nombre_completo: alumno?.alumno_nombre_completo || alumno?.nombre_completo || `${alumno?.alumno_nombre || ''} ${alumno?.alumno_app || ''} ${alumno?.alumno_apm || ''}`.trim() || 'Sin nombre',
-          grado: alumno?.grado || alumno?.alumno_grado || '?',
-          grupo: alumno?.grupo || alumno?.alumno_grupo || '?',
+          grado: gradoFormateado,
+          grupo: alumno?.grupo || alumno?.alumno_grupo || '',
           nivel_educativo: nivelEducativo,
           tipo_registro: reg.tipo_registro
         };

@@ -241,9 +241,15 @@ export default function EntregaDashboardPage() {
                       <div className="alumno-meta">
                         <span className="meta-badge">{alumno.nivel_educativo}</span>
                         <span className="meta-divider">•</span>
-                        <span className="meta-badge">Grado {alumno.grado}{alumno.grupo}</span>
+                        <span className="meta-badge">{alumno.grado}</span>
+                        {alumno.grupo && (
+                          <>
+                            <span className="meta-divider">•</span>
+                            <span className="meta-text">Grupo {alumno.grupo}</span>
+                          </>
+                        )}
                         <span className="meta-divider">•</span>
-                        <span className="meta-text">Matrícula: {alumno.alumno_ref}</span>
+                        <span className="meta-text">#{alumno.alumno_ref}</span>
                       </div>
                     </div>
                   </div>
