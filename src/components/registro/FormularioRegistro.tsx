@@ -148,6 +148,8 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (loading) return; // Prevenir múltiples submits
+    
     if (!puedeModificar()) {
       setError('Solo puede modificar antes de la 1:00 PM');
       return;

@@ -36,26 +36,33 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { data: existente } = await insforge.database
+      // Buscar TODOS los permanentes del alumno (activos e inactivos)
+      const { data: todosLosPermanentes } = await insforge.database
         .from('registro_salida_pie')
         .select('*')
         .eq('alumno_ref', alumno_ref)
-        .eq('tipo_registro', 'permanente')
-        .eq('activo', true)
-        .single();
+        .eq('tipo_registro', 'permanente');
 
-      // Si existe un permanente activo pero sin días, desactivarlo primero
-      if (existente && (!existente.dias_semana || existente.dias_semana.length === 0)) {
+      if (todosLosPermanentes && todosLosPermanentes.length > 0) {
+        // Separar activos y válidos
+        const activosValidos = todosLosPermanentes.filter(
+          r => r.activo && r.dias_semana && r.dias_semana.length > 0
+        );
+
+        // Si hay un activo válido, rechazar
+        if (activosValidos.length > 0) {
+          return NextResponse.json(
+            { success: false, error: 'Ya existe un registro permanente activo' },
+            { status: 400 }
+          );
+        }
+
+        // Limpiar TODOS los registros inválidos o inactivos antes de crear el nuevo
+        const idsALimpiar = todosLosPermanentes.map(r => r.id);
         await insforge.database
           .from('registro_salida_pie')
-          .update({ activo: false })
-          .eq('id', existente.id);
-      } else if (existente && existente.dias_semana && existente.dias_semana.length > 0) {
-        // Solo si tiene días válidos, rechazar
-        return NextResponse.json(
-          { success: false, error: 'Ya existe un registro permanente activo' },
-          { status: 400 }
-        );
+          .delete()
+          .in('id', idsALimpiar);
       }
     }
 
@@ -68,67 +75,68 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Verificar si ya existe un eventual activo
-      const { data: eventualesExistentes } = await insforge.database
+      // Buscar TODOS los eventuales del alumno
+      const { data: todosLosEventuales } = await insforge.database
         .from('registro_salida_pie')
         .select('*')
         .eq('alumno_ref', alumno_ref)
-        .eq('tipo_registro', 'eventual')
-        .eq('activo', true);
+        .eq('tipo_registro', 'eventual');
 
       // Si hay registros eventuales existentes
-      if (eventualesExistentes && eventualesExistentes.length > 0) {
-        // Limpiar registros vacíos (sin fechas)
-        const registrosVacios = eventualesExistentes.filter(
-          r => !r.fechas_especificas || r.fechas_especificas.length === 0
+      if (todosLosEventuales && todosLosEventuales.length > 0) {
+        // Obtener registros activos y válidos
+        const activosValidos = todosLosEventuales.filter(
+          r => r.activo && r.fechas_especificas && r.fechas_especificas.length > 0
         );
-        
-        if (registrosVacios.length > 0) {
+
+        if (activosValidos.length > 0) {
+          // Consolidar: tomar el primero y agregar las nuevas fechas
+          const registroPrincipal = activosValidos[0];
+          const todasLasFechas = activosValidos.flatMap(r => r.fechas_especificas || []);
+          const fechasConsolidadas = [...new Set([...todasLasFechas, ...fechas])];
+
+          // Eliminar TODOS los eventuales (vamos a recrear el principal)
           await insforge.database
             .from('registro_salida_pie')
-            .update({ activo: false })
-            .in('id', registrosVacios.map(r => r.id));
-        }
+            .delete()
+            .eq('alumno_ref', alumno_ref)
+            .eq('tipo_registro', 'eventual');
 
-        // Obtener registros válidos (con fechas)
-        const registrosValidos = eventualesExistentes.filter(
-          r => r.fechas_especificas && r.fechas_especificas.length > 0
-        );
-
-        if (registrosValidos.length > 0) {
-          // Si hay múltiples, consolidar en uno solo
-          const registroPrincipal = registrosValidos[0];
-          const todasLasFechas = registrosValidos.flatMap(r => r.fechas_especificas || []);
-          const fechasConsolidadas = [...new Set([...todasLasFechas, ...fechas])]; // Eliminar duplicados
-
-          // Desactivar los demás registros duplicados
-          if (registrosValidos.length > 1) {
-            const idsADesactivar = registrosValidos.slice(1).map(r => r.id);
-            await insforge.database
-              .from('registro_salida_pie')
-              .update({ activo: false })
-              .in('id', idsADesactivar);
-          }
-
-          // Actualizar el principal con todas las fechas
-          const { error: updateError } = await insforge.database
+          // Crear nuevo registro limpio con todas las fechas
+          const { data: nuevoRegistro, error: insertError } = await insforge.database
             .from('registro_salida_pie')
-            .update({ fechas_especificas: fechasConsolidadas })
-            .eq('id', registroPrincipal.id);
+            .insert({
+              alumno_ref,
+              tipo_registro: 'eventual',
+              activo: true,
+              fechas_especificas: fechasConsolidadas,
+              nombre_tutor: 'N/A',
+              email_tutor: 'N/A',
+              telefono_tutor: 'N/A'
+            })
+            .select()
+            .single();
 
-          if (updateError) {
+          if (insertError) {
             return NextResponse.json(
-              { success: false, error: 'Error al actualizar fechas' },
+              { success: false, error: 'Error al consolidar fechas' },
               { status: 500 }
             );
           }
 
           return NextResponse.json({
             success: true,
-            message: 'Fechas agregadas al registro existente',
-            data: { ...registroPrincipal, fechas_especificas: fechasConsolidadas },
+            message: 'Fechas agregadas y duplicados eliminados',
+            data: nuevoRegistro,
           });
         }
+
+        // Si solo hay inactivos o vacíos, eliminarlos
+        await insforge.database
+          .from('registro_salida_pie')
+          .delete()
+          .eq('alumno_ref', alumno_ref)
+          .eq('tipo_registro', 'eventual');
       }
     }
 
