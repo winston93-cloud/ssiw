@@ -179,6 +179,15 @@ export default function EntregaDashboardPage() {
             <p className="breadcrumb">Instituto Winston Churchill / Control de Entregas</p>
           </div>
 
+          {/* Día actual destacado */}
+          <div className="header-fecha-destacada">
+            <div className="fecha-dia-numero">{new Date().getDate()}</div>
+            <div className="fecha-dia-texto">
+              <div className="fecha-dia-semana">{new Date().toLocaleDateString('es-MX', { weekday: 'long' })}</div>
+              <div className="fecha-mes-anio">{new Date().toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}</div>
+            </div>
+          </div>
+
           {/* Estadísticas compactas en header */}
           <div className="stats-cards-header">
             <div className="stat-card-header stat-primary">

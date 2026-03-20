@@ -1,5 +1,57 @@
 /* ENTREGA A PIE - ULTRA COMPACTO */
 
+/* Fecha destacada en header */
+.header-fecha-destacada {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+  margin-left: auto;
+  margin-right: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fecha-dia-numero {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.fecha-dia-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.fecha-dia-semana {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  text-transform: capitalize;
+  line-height: 1;
+}
+
+.fecha-mes-anio {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: capitalize;
+  line-height: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header-fecha-destacada {
+    background: linear-gradient(135deg, rgba(0, 153, 255, 0.2) 0%, rgba(0, 51, 102, 0.3) 100%);
+    border-color: rgba(0, 153, 255, 0.4);
+  }
+}
+
 /* Estadísticas compactas en header */
 .stats-cards-header {
   display: flex;
