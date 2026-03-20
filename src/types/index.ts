@@ -40,4 +40,5 @@ export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
+  tipo?: 'alumno' | 'maestra';
 }
