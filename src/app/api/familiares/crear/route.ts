@@ -15,6 +15,8 @@ export async function POST(request: NextRequest) {
       familiar_email
     } = body;
 
+    console.log('Crear familiar - Body recibido:', body);
+
     if (!alumno_id || !familiar_nombre) {
       return NextResponse.json(
         { success: false, error: 'Faltan datos requeridos' },
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data } = await queryMySQL(
+    const { data, error } = await queryMySQL(
       `INSERT INTO alumno_familiar (
         alumno_id,
         tutor_id,
@@ -49,6 +51,15 @@ export async function POST(request: NextRequest) {
       ]
     );
 
+    if (error) {
+      console.error('Error MySQL al crear familiar:', error);
+      return NextResponse.json(
+        { success: false, error: error },
+        { status: 500 }
+      );
+    }
+
+    console.log('Familiar creado exitosamente:', data);
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
     console.error('Error al crear familiar:', error);
