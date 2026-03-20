@@ -75,8 +75,8 @@ export async function GET(request: NextRequest) {
       fecha: fechaHoy,
       dia: diaSemana,
       total: alumnos.length,
-      entregados: alumnos.filter(a => a.entregado).length,
-      pendientes: alumnos.filter(a => !a.entregado).length,
+      entregados: alumnos.filter((a: any) => a.entregado).length,
+      pendientes: alumnos.filter((a: any) => !a.entregado).length,
       alumnos
     });
   } catch (error: any) {
