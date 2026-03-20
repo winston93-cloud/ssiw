@@ -68,7 +68,7 @@ export default function LoginPage() {
               </svg>
             </div>
             <h1 className="institute-name">Instituto Winston Churchill</h1>
-            <p className="institute-subtitle">Sistema de Salida Institucional</p>
+            <p className="institute-subtitle">Sistema de Servicios Integrales Winston</p>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
@@ -91,7 +91,7 @@ export default function LoginPage() {
                   disabled={loading}
                 />
                 <label htmlFor="alumnoRef" className="floating-label">
-                  Número de Control del Alumno
+                  Password
                 </label>
               </div>
               {error && (
