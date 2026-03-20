@@ -105,8 +105,15 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     
+    // No permitir fechas pasadas
     if (fecha < hoy) return false;
     
+    // Límite máximo: 15 días hacia adelante
+    const limiteMaximo = new Date(hoy);
+    limiteMaximo.setDate(hoy.getDate() + 15);
+    if (fecha > limiteMaximo) return false;
+    
+    // Solo días entre semana (L-V)
     const diaSemana = fecha.getDay();
     return diaSemana !== 0 && diaSemana !== 6;
   };
