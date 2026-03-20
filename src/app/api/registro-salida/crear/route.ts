@@ -36,15 +36,22 @@ export async function POST(request: NextRequest) {
         );
       }
 
-    const { data: existente } = await insforge.database
-      .from('registro_salida_pie')
+      const { data: existente } = await insforge.database
+        .from('registro_salida_pie')
         .select('*')
         .eq('alumno_ref', alumno_ref)
         .eq('tipo_registro', 'permanente')
         .eq('activo', true)
         .single();
 
-      if (existente) {
+      // Si existe un permanente activo pero sin días, desactivarlo primero
+      if (existente && (!existente.dias_semana || existente.dias_semana.length === 0)) {
+        await insforge.database
+          .from('registro_salida_pie')
+          .update({ activo: false })
+          .eq('id', existente.id);
+      } else if (existente && existente.dias_semana && existente.dias_semana.length > 0) {
+        // Solo si tiene días válidos, rechazar
         return NextResponse.json(
           { success: false, error: 'Ya existe un registro permanente activo' },
           { status: 400 }
