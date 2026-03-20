@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // 6. Ordenar por grado y nombre
-    alumnos.sort((a, b) => {
+    alumnos.sort((a: any, b: any) => {
       const gradoA = parseInt(a.grado) || 0;
       const gradoB = parseInt(b.grado) || 0;
       if (gradoA !== gradoB) return gradoA - gradoB;
