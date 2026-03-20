@@ -104,8 +104,33 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   };
 
   const puedeModificar = () => {
+    return true; // La validación se hará por día específico
+  };
+
+  const puedeModificarDia = (dia: string) => {
     const ahora = new Date();
-    return ahora.getHours() < 13;
+    const diaSemanaHoy = ahora.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
+    const horaActual = ahora.getHours();
+    
+    // Si es después de la 1 PM y el día es hoy, NO puede modificar
+    if (horaActual >= 13 && dia === diaSemanaHoy) {
+      return false;
+    }
+    
+    return true;
+  };
+
+  const puedeModificarFecha = (fecha: string) => {
+    const ahora = new Date();
+    const fechaHoy = ahora.toISOString().split('T')[0];
+    const horaActual = ahora.getHours();
+    
+    // Si es después de la 1 PM y la fecha es hoy, NO puede modificar
+    if (horaActual >= 13 && fecha === fechaHoy) {
+      return false;
+    }
+    
+    return true;
   };
 
   const getDiasDelMes = () => {
@@ -149,19 +174,43 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     
     if (loading) return; // Prevenir múltiples submits
     
-    if (!puedeModificar()) {
-      setError('Solo puede modificar antes de la 1:00 PM');
-      return;
+    // Validaciones específicas por tipo
+    if (tipoRegistro === 'permanente') {
+      if (diasSeleccionados.length === 0) {
+        setError('Debe seleccionar al menos un día');
+        return;
+      }
+
+      // Verificar si alguno de los días seleccionados es HOY y es después de 1 PM
+      const ahora = new Date();
+      const diaSemanaHoy = ahora.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
+      
+      if (ahora.getHours() >= 13 && diasSeleccionados.includes(diaSemanaHoy as DiaSemana)) {
+        setError(`No puede incluir ${diaSemanaHoy} después de la 1:00 PM del mismo día`);
+        return;
+      }
     }
 
-    if (tipoRegistro === 'permanente' && diasSeleccionados.length === 0) {
-      setError('Debe seleccionar al menos un día');
-      return;
-    }
+    if (tipoRegistro === 'eventual') {
+      if (fechasEventuales.length === 0) {
+        setError('Debe seleccionar al menos una fecha');
+        return;
+      }
 
-    if (tipoRegistro === 'eventual' && fechasEventuales.length === 0) {
-      setError('Debe seleccionar al menos una fecha');
-      return;
+      // Verificar si alguna fecha es HOY y es después de 1 PM
+      const ahora = new Date();
+      const fechaHoy = ahora.toISOString().split('T')[0];
+      
+      if (ahora.getHours() >= 13) {
+        const incluyeHoy = fechasEventuales.some(
+          f => f.toISOString().split('T')[0] === fechaHoy
+        );
+        
+        if (incluyeHoy) {
+          setError('No puede incluir el día de hoy después de la 1:00 PM');
+          return;
+        }
+      }
     }
 
     setError('');
@@ -201,8 +250,10 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   };
 
   const handleCancelarDia = async (id: number, dia?: string) => {
-    if (!puedeModificar()) {
-      setError('Solo puede cancelar antes de la 1:00 PM');
+    if (!dia) return;
+    
+    if (!puedeModificarDia(dia)) {
+      setError(`No puede cancelar ${dia} después de la 1:00 PM del mismo día`);
       return;
     }
 
@@ -235,10 +286,17 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   };
 
   const handleCancelarFechaEventual = async (id: number, fecha: string) => {
-    if (!puedeModificar()) {
-      setError('Solo puede cancelar antes de la 1:00 PM');
+    if (!puedeModificarFecha(fecha)) {
+      const fechaObj = new Date(fecha + 'T12:00:00');
+      const fechaFormateada = fechaObj.toLocaleDateString('es-MX', { 
+        day: 'numeric', 
+        month: 'long' 
+      });
+      setError(`No puede cancelar ${fechaFormateada} después de la 1:00 PM del mismo día`);
       return;
     }
+
+    if (loading) return;
 
     setLoading(true);
     try {
