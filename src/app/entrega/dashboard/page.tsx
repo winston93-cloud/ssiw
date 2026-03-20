@@ -30,7 +30,7 @@ export default function EntregaDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [registrando, setRegistrando] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(true);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Colapsado por defecto
 
   useEffect(() => {
     const maestraData = localStorage.getItem('maestra');
