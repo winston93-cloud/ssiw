@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         alumno_id,
-        tutor_id || 0,
+        tutor_id > 0 ? tutor_id : null,  // NULL en lugar de 0
         familiar_nombre,
         familiar_app || '',
         familiar_apm || '',
