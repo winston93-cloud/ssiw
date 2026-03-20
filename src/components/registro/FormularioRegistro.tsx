@@ -502,7 +502,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
           <p className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
             ℹ️ Ya tienes un registro permanente activo
           </p>
-          <p className="text-sm text-blue-700 dark:text-blue-300">
+          <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
             Este registro se aplica automáticamente cada semana de todos los meses. 
             Si necesitas agregar días eventuales específicos, usa el botón de abajo.
           </p>
@@ -511,7 +511,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
               setTipoRegistro('eventual');
               setMostrarFormulario(true);
             }} 
-            className="btn-nuevo mt-4"
+            className="btn-agregar-eventual"
           >
             📅 Agregar Día Eventual
           </button>
