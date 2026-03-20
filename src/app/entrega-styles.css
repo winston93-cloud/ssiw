@@ -145,26 +145,64 @@
 .search-bar-large {
   position: relative;
   flex: 1;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--primary) 0%, rgba(0, 51, 102, 0.9) 100%);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .search-bar-large {
+    background: linear-gradient(135deg, rgba(0, 153, 255, 0.2) 0%, rgba(0, 51, 102, 0.3) 100%);
+    border: 1px solid rgba(0, 153, 255, 0.3);
+  }
 }
 
 .search-icon {
   position: absolute;
-  left: 0.75rem;
+  left: 1.75rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: var(--muted-foreground);
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.8);
   pointer-events: none;
 }
 
 .search-input-large {
   width: 100%;
-  padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-  font-size: 0.875rem;
-  border: 1px solid var(--border);
+  padding: 0.625rem 1rem 0.625rem 3rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 0.5rem;
-  background: var(--card);
+  font-size: 0.875rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.search-input-large::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-input-large:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .search-input-large {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(0, 153, 255, 0.4);
+  }
+  
+  .search-input-large:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(0, 153, 255, 0.6);
+  }
 }
 
 .stats-cards {
