@@ -742,16 +742,7 @@
   color: var(--foreground);
 }
 
-.modal-badge-tutor {
-  padding: 0.25rem 0.75rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.modal-badge-padre {
+.modal-badge-tutor1 {
   padding: 0.25rem 0.75rem;
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color: white;
@@ -760,9 +751,9 @@
   font-weight: 700;
 }
 
-.modal-badge-madre {
+.modal-badge-tutor2 {
   padding: 0.25rem 0.75rem;
-  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
   border-radius: 0.5rem;
   font-size: 0.75rem;

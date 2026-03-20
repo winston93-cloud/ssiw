@@ -409,13 +409,10 @@ export default function EntregaDashboardPage() {
                             {familiar.familiar_nombre} {familiar.familiar_app} {familiar.familiar_apm}
                           </h4>
                           {familiar.tutor_id === 1 && (
-                            <span className="modal-badge-padre">👨 Padre</span>
+                            <span className="modal-badge-tutor1">👤 Tutor 1</span>
                           )}
                           {familiar.tutor_id === 2 && (
-                            <span className="modal-badge-madre">👩 Madre</span>
-                          )}
-                          {familiar.tutor_id > 2 && (
-                            <span className="modal-badge-tutor">👨‍👩‍👧 Tutor</span>
+                            <span className="modal-badge-tutor2">👤 Tutor 2</span>
                           )}
                         </div>
                         <div className="modal-familiar-contactos">

@@ -661,13 +661,10 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                     {familiar.familiar_nombre} {familiar.familiar_app} {familiar.familiar_apm}
                   </h4>
                   {familiar.tutor_id === 1 && (
-                    <span className="badge-padre">👨 Padre</span>
+                    <span className="badge-tutor1">👤 Tutor 1</span>
                   )}
                   {familiar.tutor_id === 2 && (
-                    <span className="badge-madre">👩 Madre</span>
-                  )}
-                  {familiar.tutor_id > 2 && (
-                    <span className="badge-tutor">👨‍👩‍👧 Tutor</span>
+                    <span className="badge-tutor2">👤 Tutor 2</span>
                   )}
                   {familiar.familiar_tel && (
                     <p className="familiar-dato">📞 {familiar.familiar_tel}</p>
@@ -771,9 +768,8 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                     className="input-familiar"
                   >
                     <option value={0}>Familiar autorizado</option>
-                    <option value={1}>👨 Padre</option>
-                    <option value={2}>👩 Madre</option>
-                    <option value={3}>👨‍👩‍👧 Otro tutor</option>
+                    <option value={1}>👤 Tutor 1</option>
+                    <option value={2}>👤 Tutor 2</option>
                   </select>
                 </div>
                 <div className="form-actions">
