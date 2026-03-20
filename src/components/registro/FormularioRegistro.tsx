@@ -205,6 +205,8 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       return;
     }
 
+    if (loading) return; // Prevenir múltiples llamadas
+
     if (!confirm('¿Cancelar este día?')) return;
 
     setLoading(true);
