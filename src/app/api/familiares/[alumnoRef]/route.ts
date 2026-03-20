@@ -3,10 +3,10 @@ import { queryMySQL } from '@/lib/mysql';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { alumnoRef: string } }
+  { params }: { params: Promise<{ alumnoRef: string }> }
 ) {
   try {
-    const { alumnoRef } = params;
+    const { alumnoRef } = await params;
 
     // Primero obtener alumno_id desde alumno_ref
     const { data: alumnoData } = await queryMySQL(
