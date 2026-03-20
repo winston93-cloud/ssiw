@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const [activeView, setActiveView] = useState<'overview' | 'calendario'>('overview');
   const [menuOpen, setMenuOpen] = useState(true);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Siempre colapsado por defecto
 
   useEffect(() => {
     setMounted(true);
