@@ -30,7 +30,7 @@ export default function EntregaDashboardPage() {
   const [nivelFiltro, setNivelFiltro] = useState('Todos');
   const [loading, setLoading] = useState(true);
   const [registrando, setRegistrando] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false); // Cerrado por defecto
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Colapsado por defecto
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<Alumno | null>(null);
   const [familiares, setFamiliares] = useState<any[]>([]);

@@ -11,7 +11,7 @@ export default function DashboardPage() {
   const [maestra, setMaestra] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
   const [activeView, setActiveView] = useState<'overview' | 'calendario'>('overview');
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false); // Cerrado por defecto
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Siempre colapsado por defecto
 
   useEffect(() => {
