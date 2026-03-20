@@ -207,34 +207,36 @@ export default function EntregaDashboardPage() {
         </header>
 
         <div className="dashboard-content">
-          {/* Filtro de nivel */}
-          <div className="nivel-filtro-container">
-            <label htmlFor="nivel-filtro" className="nivel-filtro-label">Nivel:</label>
-            <select 
-              id="nivel-filtro"
-              value={nivelFiltro}
-              onChange={(e) => setNivelFiltro(e.target.value)}
-              className="nivel-filtro-select"
-            >
-              <option value="Todos">Todos</option>
-              <option value="Primaria">Primaria</option>
-              <option value="Secundaria">Secundaria</option>
-            </select>
-          </div>
+          {/* Filtro de nivel y búsqueda en la misma línea */}
+          <div className="controles-top">
+            <div className="nivel-filtro-container">
+              <label htmlFor="nivel-filtro" className="nivel-filtro-label">Nivel:</label>
+              <select 
+                id="nivel-filtro"
+                value={nivelFiltro}
+                onChange={(e) => setNivelFiltro(e.target.value)}
+                className="nivel-filtro-select"
+              >
+                <option value="Todos">Todos</option>
+                <option value="Primaria">Primaria</option>
+                <option value="Secundaria">Secundaria</option>
+              </select>
+            </div>
 
-          {/* Barra de búsqueda */}
-          <div className="search-bar-large">
-            <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input
-              type="text"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar por nombre, matrícula o grado..."
-              className="search-input-large"
-              autoComplete="off"
-            />
+            {/* Barra de búsqueda */}
+            <div className="search-bar-large">
+              <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input
+                type="text"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar por nombre, matrícula o grado..."
+                className="search-input-large"
+                autoComplete="off"
+              />
+            </div>
           </div>
 
           {/* Lista de alumnos */}

@@ -31,15 +31,23 @@
   letter-spacing: 0.3px;
 }
 
+/* Controles en la misma línea */
+.controles-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
 .nivel-filtro-container {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1rem;
   padding: 0.75rem 1rem;
   background: linear-gradient(135deg, var(--primary) 0%, rgba(0, 51, 102, 0.9) 100%);
   border-radius: 0.75rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
 }
 
 .nivel-filtro-label {
@@ -136,7 +144,7 @@
 
 .search-bar-large {
   position: relative;
-  margin-bottom: 0.75rem;
+  flex: 1;
 }
 
 .search-icon {
