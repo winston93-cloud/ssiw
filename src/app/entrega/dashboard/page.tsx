@@ -8,6 +8,7 @@ interface Alumno {
   nombre_completo: string;
   grado: string;
   grupo: string;
+  nivel_educativo: string;
   tipo_registro: string;
   entregado: boolean;
 }
@@ -238,6 +239,8 @@ export default function EntregaDashboardPage() {
                     <div className="alumno-details">
                       <h3 className="alumno-nombre">{alumno.nombre_completo}</h3>
                       <div className="alumno-meta">
+                        <span className="meta-badge">{alumno.nivel_educativo}</span>
+                        <span className="meta-divider">•</span>
                         <span className="meta-badge">Grado {alumno.grado}{alumno.grupo}</span>
                         <span className="meta-divider">•</span>
                         <span className="meta-text">Matrícula: {alumno.alumno_ref}</span>

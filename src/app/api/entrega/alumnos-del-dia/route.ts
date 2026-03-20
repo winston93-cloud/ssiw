@@ -55,11 +55,24 @@ export async function GET(request: NextRequest) {
         
         const alumno = alumnoData && (alumnoData as any[]).length > 0 ? (alumnoData as any[])[0] : null;
         
+        // Determinar nivel educativo
+        let nivelEducativo = 'Sin nivel';
+        if (alumno) {
+          const nivel = parseInt(alumno.alumno_nivel) || 0;
+          switch (nivel) {
+            case 1: nivelEducativo = 'Maternal'; break;
+            case 2: nivelEducativo = 'Kinder'; break;
+            case 3: nivelEducativo = 'Primaria'; break;
+            case 4: nivelEducativo = 'Secundaria'; break;
+          }
+        }
+        
         return {
           alumno_ref: reg.alumno_ref,
-          nombre_completo: alumno?.nombre_completo || 'Sin nombre',
-          grado: alumno?.grado || '?',
-          grupo: alumno?.grupo || '?',
+          nombre_completo: alumno?.alumno_nombre_completo || alumno?.nombre_completo || `${alumno?.alumno_nombre || ''} ${alumno?.alumno_app || ''} ${alumno?.alumno_apm || ''}`.trim() || 'Sin nombre',
+          grado: alumno?.grado || alumno?.alumno_grado || '?',
+          grupo: alumno?.grupo || alumno?.alumno_grupo || '?',
+          nivel_educativo: nivelEducativo,
           tipo_registro: reg.tipo_registro
         };
       })
