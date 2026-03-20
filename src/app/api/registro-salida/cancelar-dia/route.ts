@@ -42,10 +42,13 @@ export async function POST(request: NextRequest) {
       const nuevosDias = registro.dias_semana.filter((d: string) => d !== dia);
       
       if (nuevosDias.length === 0) {
-        // Si ya no quedan días, desactivar
+        // Si ya no quedan días, desactivar y limpiar el array
         await insforge.database
           .from('registro_salida_pie')
-          .update({ activo: false })
+          .update({ 
+            activo: false,
+            dias_semana: []
+          })
           .eq('id', id);
       } else {
         // Actualizar días y contador

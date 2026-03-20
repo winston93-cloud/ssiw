@@ -60,6 +60,39 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+
+      // Verificar si ya existe un eventual activo con las mismas fechas
+      const { data: eventualesExistentes } = await insforge.database
+        .from('registro_salida_pie')
+        .select('*')
+        .eq('alumno_ref', alumno_ref)
+        .eq('tipo_registro', 'eventual')
+        .eq('activo', true);
+
+      // Si hay registros eventuales existentes, agregar fechas al existente en lugar de crear uno nuevo
+      if (eventualesExistentes && eventualesExistentes.length > 0) {
+        const registroExistente = eventualesExistentes[0];
+        const fechasExistentes = registroExistente.fechas_especificas || [];
+        const fechasNuevas = [...new Set([...fechasExistentes, ...fechas])]; // Eliminar duplicados
+
+        const { error: updateError } = await insforge.database
+          .from('registro_salida_pie')
+          .update({ fechas_especificas: fechasNuevas })
+          .eq('id', registroExistente.id);
+
+        if (updateError) {
+          return NextResponse.json(
+            { success: false, error: 'Error al actualizar fechas' },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: 'Fechas agregadas al registro existente',
+          data: { ...registroExistente, fechas_especificas: fechasNuevas },
+        });
+      }
     }
 
     // Crear registro
