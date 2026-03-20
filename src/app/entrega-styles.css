@@ -1,0 +1,297 @@
+
+/* ========================================
+   ENTREGA A PIE - DASHBOARD
+   ======================================== */
+
+.entrega-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.search-bar-large {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.search-input-large {
+  width: 100%;
+  padding: var(--space-4) var(--space-4) var(--space-4) 3.5rem;
+  font-size: var(--font-lg);
+  font-weight: var(--weight-medium);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  color: var(--foreground);
+  transition: var(--transition-smooth);
+}
+
+.search-input-large:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.stat-card {
+  padding: var(--space-5);
+  border-radius: var(--radius-2xl);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-base);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, rgba(0, 51, 102, 0.8) 100%);
+  color: white;
+}
+
+.stat-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.stat-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.stat-value {
+  font-size: 3rem;
+  font-weight: var(--weight-black);
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+.stat-label {
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  opacity: 0.95;
+}
+
+/* Lista de entregas */
+.entregas-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.alumno-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5);
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-smooth);
+}
+
+.alumno-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.alumno-card.entregado {
+  opacity: 0.6;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.alumno-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+.alumno-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-xl);
+  font-weight: var(--weight-bold);
+  flex-shrink: 0;
+}
+
+.alumno-details {
+  flex: 1;
+}
+
+.alumno-nombre {
+  font-size: var(--font-xl);
+  font-weight: var(--weight-bold);
+  color: var(--foreground);
+  margin-bottom: var(--space-1);
+}
+
+.alumno-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-caption);
+  color: var(--muted-foreground);
+}
+
+.meta-badge {
+  padding: 0.25rem 0.75rem;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-semibold);
+  font-size: 0.8125rem;
+}
+
+.meta-divider {
+  color: var(--border);
+}
+
+.meta-text {
+  font-weight: var(--weight-medium);
+}
+
+.alumno-actions {
+  flex-shrink: 0;
+}
+
+.btn-entregar {
+  padding: var(--space-3) var(--space-6);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: var(--font-body);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-entregar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-entregar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-entregar svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-xl);
+  font-weight: var(--weight-bold);
+  font-size: var(--font-body);
+}
+
+.status-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border: 2px solid #10b981;
+}
+
+.status-badge svg {
+  width: 20px;
+  height: 20px;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  color: var(--muted-foreground);
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-6);
+  color: var(--border);
+}
+
+.empty-state h3 {
+  font-size: var(--font-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--foreground);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state p {
+  font-size: var(--font-body);
+  color: var(--muted-foreground);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+  }
+
+  .alumno-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .alumno-actions {
+    width: 100%;
+  }
+
+  .btn-entregar,
+  .status-badge {
+    width: 100%;
+    justify-content: center;
+  }
+}
