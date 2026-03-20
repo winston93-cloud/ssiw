@@ -104,8 +104,9 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   };
 
   const puedeModificar = () => {
-    const ahora = new Date();
-    return ahora.getHours() < 13;
+    // const ahora = new Date();
+    // return ahora.getHours() < 13;
+    return true; // Restricción desactivada temporalmente
   };
 
   const getDiasDelMes = () => {
