@@ -27,6 +27,7 @@ export default function EntregaDashboardPage() {
   const [maestra, setMaestra] = useState<any>(null);
   const [datos, setDatos] = useState<DatosDelDia | null>(null);
   const [busqueda, setBusqueda] = useState('');
+  const [nivelFiltro, setNivelFiltro] = useState('Todos');
   const [loading, setLoading] = useState(true);
   const [registrando, setRegistrando] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(true);
@@ -92,11 +93,17 @@ export default function EntregaDashboardPage() {
     router.push('/login');
   };
 
-  const alumnosFiltrados = datos?.alumnos.filter(a =>
-    a.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()) ||
-    a.alumno_ref.includes(busqueda) ||
-    `${a.grado}${a.grupo}`.toLowerCase().includes(busqueda.toLowerCase())
-  ) || [];
+  const alumnosFiltrados = datos?.alumnos.filter(a => {
+    // Filtro de búsqueda
+    const matchBusqueda = a.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()) ||
+      a.alumno_ref.includes(busqueda) ||
+      `${a.grado}${a.grupo}`.toLowerCase().includes(busqueda.toLowerCase());
+    
+    // Filtro de nivel
+    const matchNivel = nivelFiltro === 'Todos' || a.nivel_educativo === nivelFiltro;
+    
+    return matchBusqueda && matchNivel;
+  }) || [];
 
   if (loading || !maestra) {
     return (
@@ -184,6 +191,21 @@ export default function EntregaDashboardPage() {
         </header>
 
         <div className="dashboard-content">
+          {/* Filtro de nivel */}
+          <div className="nivel-filtro-container">
+            <label htmlFor="nivel-filtro" className="nivel-filtro-label">Nivel:</label>
+            <select 
+              id="nivel-filtro"
+              value={nivelFiltro}
+              onChange={(e) => setNivelFiltro(e.target.value)}
+              className="nivel-filtro-select"
+            >
+              <option value="Todos">Todos</option>
+              <option value="Primaria">Primaria</option>
+              <option value="Secundaria">Secundaria</option>
+            </select>
+          </div>
+
           {/* Estadísticas */}
           <div className="stats-cards">
             <div className="stat-card stat-primary">
