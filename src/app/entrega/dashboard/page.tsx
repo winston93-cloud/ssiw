@@ -184,36 +184,35 @@ export default function EntregaDashboardPage() {
         </header>
 
         <div className="dashboard-content">
-          {/* Barra de búsqueda y estadísticas */}
-          <div className="entrega-controls">
-            <div className="search-bar-large">
-              <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-              </svg>
-              <input
-                type="text"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar por nombre, matrícula o grado..."
-                className="search-input-large"
-                autoComplete="off"
-              />
+          {/* Estadísticas */}
+          <div className="stats-cards">
+            <div className="stat-card stat-primary">
+              <div className="stat-value">{datos?.total || 0}</div>
+              <div className="stat-label">Total</div>
             </div>
+            <div className="stat-card stat-success">
+              <div className="stat-value">{datos?.entregados || 0}</div>
+              <div className="stat-label">Entregados</div>
+            </div>
+            <div className="stat-card stat-warning">
+              <div className="stat-value">{datos?.pendientes || 0}</div>
+              <div className="stat-label">Pendientes</div>
+            </div>
+          </div>
 
-            <div className="stats-cards">
-              <div className="stat-card stat-primary">
-                <div className="stat-value">{datos?.total || 0}</div>
-                <div className="stat-label">Total</div>
-              </div>
-              <div className="stat-card stat-success">
-                <div className="stat-value">{datos?.entregados || 0}</div>
-                <div className="stat-label">Entregados</div>
-              </div>
-              <div className="stat-card stat-warning">
-                <div className="stat-value">{datos?.pendientes || 0}</div>
-                <div className="stat-label">Pendientes</div>
-              </div>
-            </div>
+          {/* Barra de búsqueda */}
+          <div className="search-bar-large">
+            <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar por nombre, matrícula o grado..."
+              className="search-input-large"
+              autoComplete="off"
+            />
           </div>
 
           {/* Lista de alumnos */}
