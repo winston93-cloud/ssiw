@@ -79,8 +79,15 @@ export async function GET(request: NextRequest) {
               break;
             case 4: // Secundaria
               nivelEducativo = 'Secundaria';
-              const ordinalesSec = ['', '', '', '', '', '', '', '7mo', '8vo', '9no'];
-              gradoFormateado = ordinalesSec[grado] ? `${ordinalesSec[grado]} Grado` : `${grado}° Grado`;
+              if (grado === 7) {
+                gradoFormateado = '7mo. Grado';
+              } else if (grado === 8) {
+                gradoFormateado = '8vo. Grado';
+              } else if (grado === 9) {
+                gradoFormateado = '9no. Grado';
+              } else {
+                gradoFormateado = `${grado}° Grado`;
+              }
               break;
           }
         }
