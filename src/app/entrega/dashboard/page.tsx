@@ -179,6 +179,22 @@ export default function EntregaDashboardPage() {
             <p className="breadcrumb">Instituto Winston Churchill / Control de Entregas</p>
           </div>
 
+          {/* Estadísticas compactas en header */}
+          <div className="stats-cards-header">
+            <div className="stat-card-header stat-primary">
+              <div className="stat-value-header">{datos?.total || 0}</div>
+              <div className="stat-label-header">Total</div>
+            </div>
+            <div className="stat-card-header stat-success">
+              <div className="stat-value-header">{datos?.entregados || 0}</div>
+              <div className="stat-label-header">Entregados</div>
+            </div>
+            <div className="stat-card-header stat-warning">
+              <div className="stat-value-header">{datos?.pendientes || 0}</div>
+              <div className="stat-label-header">Pendientes</div>
+            </div>
+          </div>
+
           <div className="header-user">
             <div className="user-avatar">
               {maestra.nombre.substring(0, 2).toUpperCase()}
@@ -204,22 +220,6 @@ export default function EntregaDashboardPage() {
               <option value="Primaria">Primaria</option>
               <option value="Secundaria">Secundaria</option>
             </select>
-          </div>
-
-          {/* Estadísticas */}
-          <div className="stats-cards">
-            <div className="stat-card stat-primary">
-              <div className="stat-value">{datos?.total || 0}</div>
-              <div className="stat-label">Total</div>
-            </div>
-            <div className="stat-card stat-success">
-              <div className="stat-value">{datos?.entregados || 0}</div>
-              <div className="stat-label">Entregados</div>
-            </div>
-            <div className="stat-card stat-warning">
-              <div className="stat-value">{datos?.pendientes || 0}</div>
-              <div className="stat-label">Pendientes</div>
-            </div>
           </div>
 
           {/* Barra de búsqueda */}

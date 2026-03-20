@@ -1,4 +1,36 @@
 /* ENTREGA A PIE - ULTRA COMPACTO */
+
+/* Estadísticas compactas en header */
+.stats-cards-header {
+  display: flex;
+  gap: 0.375rem;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.stat-card-header {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  text-align: center;
+  min-width: 60px;
+}
+
+.stat-value-header {
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  color: white;
+}
+
+.stat-label-header {
+  font-size: 0.5rem;
+  font-weight: 600;
+  margin-top: 0.125rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
 .nivel-filtro-container {
   display: flex;
   align-items: center;
