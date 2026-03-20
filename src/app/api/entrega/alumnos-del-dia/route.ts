@@ -85,11 +85,18 @@ export async function GET(request: NextRequest) {
           }
         }
         
+        // Convertir grupo numérico a letra: 1->A, 2->B, 3->C
+        const grupoNumerico = alumno?.grupo || alumno?.alumno_grupo || '';
+        const grupoLetra = grupoNumerico === 1 || grupoNumerico === '1' ? 'A' 
+                         : grupoNumerico === 2 || grupoNumerico === '2' ? 'B'
+                         : grupoNumerico === 3 || grupoNumerico === '3' ? 'C'
+                         : grupoNumerico;
+        
         return {
           alumno_ref: reg.alumno_ref,
           nombre_completo: alumno?.alumno_nombre_completo || alumno?.nombre_completo || `${alumno?.alumno_nombre || ''} ${alumno?.alumno_app || ''} ${alumno?.alumno_apm || ''}`.trim() || 'Sin nombre',
           grado: gradoFormateado,
-          grupo: alumno?.grupo || alumno?.alumno_grupo || '',
+          grupo: grupoLetra,
           nivel_educativo: nivelEducativo,
           tipo_registro: reg.tipo_registro
         };
