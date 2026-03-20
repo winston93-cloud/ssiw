@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-
 // PINes: Maestra Auxiliar 1: 8jxFVX7C, Maestra Auxiliar 2: +s0vAejs
 export const MAESTRAS = {
   auxiliar1: {
