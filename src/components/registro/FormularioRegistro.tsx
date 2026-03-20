@@ -178,6 +178,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     if (tipoRegistro === 'permanente') {
       if (diasSeleccionados.length === 0) {
         setError('Debe seleccionar al menos un día');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
@@ -187,6 +188,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       
       if (ahora.getHours() >= 13 && diasSeleccionados.includes(diaSemanaHoy as DiaSemana)) {
         setError(`No puede incluir ${diaSemanaHoy} después de la 1:00 PM del mismo día`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
     }
@@ -194,6 +196,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     if (tipoRegistro === 'eventual') {
       if (fechasEventuales.length === 0) {
         setError('Debe seleccionar al menos una fecha');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
@@ -208,6 +211,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         
         if (incluyeHoy) {
           setError('No puede incluir el día de hoy después de la 1:00 PM');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
       }
@@ -241,9 +245,11 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         setTimeout(() => setSuccess(''), 4000);
       } else {
         setError(result.error || 'Error al guardar');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err) {
       setError('Error al procesar');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
     }
