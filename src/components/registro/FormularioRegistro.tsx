@@ -23,6 +23,19 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   const [fechasEventuales, setFechasEventuales] = useState<Date[]>([]);
   const [registroPermanente, setRegistroPermanente] = useState<any>(null);
   const [registrosEventuales, setRegistrosEventuales] = useState<any[]>([]);
+  const [familiares, setFamiliares] = useState<any[]>([]);
+  const [alumnoId, setAlumnoId] = useState<number | null>(null);
+  const [mostrarFormFamiliar, setMostrarFormFamiliar] = useState(false);
+  const [familiarEditando, setFamiliarEditando] = useState<any>(null);
+  const [formFamiliar, setFormFamiliar] = useState({
+    familiar_nombre: '',
+    familiar_app: '',
+    familiar_apm: '',
+    familiar_tel: '',
+    familiar_cel: '',
+    familiar_email: '',
+    tutor_id: 0
+  });
   const [loading, setLoading] = useState(false);
   const [loadingRegistros, setLoadingRegistros] = useState(true);
   const [error, setError] = useState('');
@@ -32,6 +45,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
   useEffect(() => {
     cargarRegistros();
+    cargarFamiliares();
   }, [alumno.alumno_ref]);
 
   const cargarRegistros = async () => {
@@ -49,6 +63,19 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       console.error('Error:', error);
     } finally {
       setLoadingRegistros(false);
+    }
+  };
+
+  const cargarFamiliares = async () => {
+    try {
+      const response = await fetch(`/api/familiares/${alumno.alumno_ref}`);
+      const data = await response.json();
+      if (data.success) {
+        setFamiliares(data.familiares || []);
+        setAlumnoId(data.alumno_id);
+      }
+    } catch (error) {
+      console.error('Error cargando familiares:', error);
     }
   };
 
@@ -235,6 +262,100 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
   const cambiarMes = (direccion: number) => {
     setMesActual(new Date(mesActual.getFullYear(), mesActual.getMonth() + direccion, 1));
+  };
+
+  const handleAgregarFamiliar = () => {
+    setFamiliarEditando(null);
+    setFormFamiliar({
+      familiar_nombre: '',
+      familiar_app: '',
+      familiar_apm: '',
+      familiar_tel: '',
+      familiar_cel: '',
+      familiar_email: '',
+      tutor_id: 0
+    });
+    setMostrarFormFamiliar(true);
+  };
+
+  const handleEditarFamiliar = (familiar: any) => {
+    setFamiliarEditando(familiar);
+    setFormFamiliar({
+      familiar_nombre: familiar.familiar_nombre || '',
+      familiar_app: familiar.familiar_app || '',
+      familiar_apm: familiar.familiar_apm || '',
+      familiar_tel: familiar.familiar_tel || '',
+      familiar_cel: familiar.familiar_cel || '',
+      familiar_email: familiar.familiar_email || '',
+      tutor_id: familiar.tutor_id || 0
+    });
+    setMostrarFormFamiliar(true);
+  };
+
+  const handleGuardarFamiliar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formFamiliar.familiar_nombre.trim()) {
+      setError('El nombre es requerido');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const endpoint = familiarEditando 
+        ? '/api/familiares/actualizar'
+        : '/api/familiares/crear';
+      
+      const body = familiarEditando
+        ? { ...formFamiliar, familiar_id: familiarEditando.familiar_id }
+        : { ...formFamiliar, alumno_id: alumnoId };
+
+      const response = await fetch(endpoint, {
+        method: familiarEditando ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess(familiarEditando ? '✅ Familiar actualizado' : '✅ Familiar agregado');
+        setMostrarFormFamiliar(false);
+        await cargarFamiliares();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(result.error || 'Error al guardar');
+      }
+    } catch (err) {
+      setError('Error al procesar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEliminarFamiliar = async (familiar_id: number) => {
+    if (!confirm('¿Eliminar este familiar autorizado?')) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/familiares/eliminar?familiar_id=${familiar_id}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess('✅ Familiar eliminado');
+        await cargarFamiliares();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(result.error || 'Error al eliminar');
+      }
+    } catch (err) {
+      setError('Error al procesar');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loadingRegistros) {
@@ -512,6 +633,157 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
           </form>
         </div>
       )}
+
+      {/* Sección de Familiares Autorizados */}
+      <div className="familiares-section">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-xl font-bold">👥 Familiares Autorizados</h3>
+            <p className="text-sm opacity-70 mt-1">
+              Personas autorizadas para recoger al alumno
+            </p>
+          </div>
+          <button onClick={handleAgregarFamiliar} className="btn-nuevo-familiar">
+            ➕ Agregar Familiar
+          </button>
+        </div>
+
+        {familiares.length === 0 ? (
+          <div className="empty-familiares">
+            <p>No hay familiares autorizados registrados</p>
+          </div>
+        ) : (
+          <div className="familiares-grid">
+            {familiares.map((familiar) => (
+              <div key={familiar.familiar_id} className="familiar-card">
+                <div className="familiar-info">
+                  <h4 className="familiar-nombre">
+                    {familiar.familiar_nombre} {familiar.familiar_app} {familiar.familiar_apm}
+                  </h4>
+                  {familiar.tutor_id > 0 && (
+                    <span className="badge-tutor">Tutor</span>
+                  )}
+                  {familiar.familiar_tel && (
+                    <p className="familiar-dato">📞 {familiar.familiar_tel}</p>
+                  )}
+                  {familiar.familiar_cel && (
+                    <p className="familiar-dato">📱 {familiar.familiar_cel}</p>
+                  )}
+                  {familiar.familiar_email && (
+                    <p className="familiar-dato">✉️ {familiar.familiar_email}</p>
+                  )}
+                </div>
+                <div className="familiar-actions">
+                  <button
+                    onClick={() => handleEditarFamiliar(familiar)}
+                    className="btn-editar-familiar"
+                    disabled={loading}
+                  >
+                    ✏️ Editar
+                  </button>
+                  <button
+                    onClick={() => handleEliminarFamiliar(familiar.familiar_id)}
+                    className="btn-eliminar-familiar"
+                    disabled={loading}
+                  >
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Modal/Form para agregar/editar familiar */}
+        {mostrarFormFamiliar && (
+          <div className="modal-overlay" onClick={() => setMostrarFormFamiliar(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-xl font-bold mb-4">
+                {familiarEditando ? '✏️ Editar Familiar' : '➕ Agregar Familiar'}
+              </h3>
+              <form onSubmit={handleGuardarFamiliar} className="form-familiar">
+                <div className="form-group">
+                  <label>Nombre(s) *</label>
+                  <input
+                    type="text"
+                    value={formFamiliar.familiar_nombre}
+                    onChange={(e) => setFormFamiliar({...formFamiliar, familiar_nombre: e.target.value})}
+                    required
+                    className="input-familiar"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Apellido Paterno</label>
+                  <input
+                    type="text"
+                    value={formFamiliar.familiar_app}
+                    onChange={(e) => setFormFamiliar({...formFamiliar, familiar_app: e.target.value})}
+                    className="input-familiar"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Apellido Materno</label>
+                  <input
+                    type="text"
+                    value={formFamiliar.familiar_apm}
+                    onChange={(e) => setFormFamiliar({...formFamiliar, familiar_apm: e.target.value})}
+                    className="input-familiar"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Teléfono</label>
+                  <input
+                    type="tel"
+                    value={formFamiliar.familiar_tel}
+                    onChange={(e) => setFormFamiliar({...formFamiliar, familiar_tel: e.target.value})}
+                    className="input-familiar"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Celular</label>
+                  <input
+                    type="tel"
+                    value={formFamiliar.familiar_cel}
+                    onChange={(e) => setFormFamiliar({...formFamiliar, familiar_cel: e.target.value})}
+                    className="input-familiar"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    value={formFamiliar.familiar_email}
+                    onChange={(e) => setFormFamiliar({...formFamiliar, familiar_email: e.target.value})}
+                    className="input-familiar"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formFamiliar.tutor_id > 0}
+                      onChange={(e) => setFormFamiliar({...formFamiliar, tutor_id: e.target.checked ? 1 : 0})}
+                    />
+                    <span>Es tutor/a del alumno</span>
+                  </label>
+                </div>
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    onClick={() => setMostrarFormFamiliar(false)}
+                    className="btn-cancelar"
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" disabled={loading} className="btn-guardar">
+                    {loading ? '⏳ Guardando...' : '💾 Guardar'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
