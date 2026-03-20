@@ -1925,6 +1925,8 @@ body {
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .btn-agregar-eventual:hover {
