@@ -1171,7 +1171,6 @@ body {
   text-transform: capitalize;
   margin-bottom: 0.5rem;
 }
-}
 
 @media (prefers-color-scheme: dark) {
   .dia-label-permanent-grande {
