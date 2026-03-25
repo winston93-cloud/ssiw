@@ -17,6 +17,50 @@
   min-width: 200px;
 }
 
+.fecha-cambiador {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fecha-cambiador-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  white-space: nowrap;
+}
+
+.fecha-cambiador-input {
+  padding: 0.45rem 0.6rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: white;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fecha-cambiador-input:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+.fecha-cambiador-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15);
+}
+
+.fecha-cambiador-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.95;
+}
+
 .fecha-dia-numero {
   font-size: 3.5rem;
   font-weight: 900;

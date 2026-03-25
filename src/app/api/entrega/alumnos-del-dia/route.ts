@@ -10,8 +10,12 @@ function sinTildes(text: string) {
 export async function GET(request: NextRequest) {
   try {
     const hoy = new Date();
-    const fechaHoy = hoy.toISOString().split('T')[0]; // YYYY-MM-DD
-    const diaSemana = hoy.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
+    const fechaParam = request.nextUrl.searchParams.get('fecha');
+    const fechaHoy = fechaParam || hoy.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Usar 12:00 para evitar saltos por zona horaria al parsear YYYY-MM-DD
+    const fechaObj = new Date(`${fechaHoy}T12:00:00`);
+    const diaSemana = fechaObj.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
     const diaSemanaSinTildes = sinTildes(diaSemana);
 
     console.log('Fecha hoy:', fechaHoy, 'Día:', diaSemana, 'Día (sin tildes):', diaSemanaSinTildes);

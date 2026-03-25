@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Alumno {
@@ -35,6 +35,7 @@ export default function EntregaDashboardPage() {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<Alumno | null>(null);
   const [familiares, setFamiliares] = useState<any[]>([]);
   const [loadingFamiliares, setLoadingFamiliares] = useState(false);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(() => new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
     const maestraData = localStorage.getItem('maestra');
@@ -42,14 +43,14 @@ export default function EntregaDashboardPage() {
       router.push('/login');
     } else {
       setMaestra(JSON.parse(maestraData));
-      cargarAlumnos();
+      cargarAlumnos(new Date().toISOString().split('T')[0]);
     }
   }, [router]);
 
-  const cargarAlumnos = async () => {
+  const cargarAlumnos = async (fecha: string = fechaSeleccionada) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/entrega/alumnos-del-dia');
+      const response = await fetch(`/api/entrega/alumnos-del-dia?fecha=${encodeURIComponent(fecha)}`);
       const data = await response.json();
       if (data.success) {
         setDatos(data);
@@ -59,6 +60,12 @@ export default function EntregaDashboardPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFechaCambio = (e: ChangeEvent<HTMLInputElement>) => {
+    const nuevaFecha = e.target.value;
+    setFechaSeleccionada(nuevaFecha);
+    cargarAlumnos(nuevaFecha);
   };
 
   const handleToggleEntrega = async (alumno_ref: string, yaEntregado: boolean) => {
@@ -205,11 +212,34 @@ export default function EntregaDashboardPage() {
 
           {/* Día actual destacado */}
           <div className="header-fecha-destacada">
-            <div className="fecha-dia-numero">{new Date().getDate()}</div>
-            <div className="fecha-dia-texto">
-              <div className="fecha-dia-semana">{new Date().toLocaleDateString('es-MX', { weekday: 'long' })}</div>
-              <div className="fecha-mes-anio">{new Date().toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}</div>
-            </div>
+            {(() => {
+              const fechaObj = new Date(`${fechaSeleccionada}T12:00:00`);
+              const diaNumero = fechaObj.getDate();
+              const diaSemana = fechaObj.toLocaleDateString('es-MX', { weekday: 'long' });
+              const mesAnio = fechaObj.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+              return (
+                <>
+                  <div className="fecha-dia-numero">{diaNumero}</div>
+                  <div className="fecha-dia-texto">
+                    <div className="fecha-dia-semana">{diaSemana}</div>
+                    <div className="fecha-mes-anio">{mesAnio}</div>
+                  </div>
+
+                  <div className="fecha-cambiador">
+                    <label className="fecha-cambiador-label" htmlFor="fecha-selector">
+                      Cambiar
+                    </label>
+                    <input
+                      id="fecha-selector"
+                      className="fecha-cambiador-input"
+                      type="date"
+                      value={fechaSeleccionada}
+                      onChange={handleFechaCambio}
+                    />
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {/* Estadísticas compactas en header */}
