@@ -2,24 +2,43 @@ import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
 import { queryMySQL } from '@/lib/mysql';
 
+function sinTildes(text: string) {
+  // Normaliza y elimina diacríticos para que "miércoles" matchee con "miercoles"
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
 export async function GET(request: NextRequest) {
   try {
     const hoy = new Date();
     const fechaHoy = hoy.toISOString().split('T')[0]; // YYYY-MM-DD
     const diaSemana = hoy.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
+    const diaSemanaSinTildes = sinTildes(diaSemana);
 
-    console.log('Fecha hoy:', fechaHoy, 'Día:', diaSemana);
+    console.log('Fecha hoy:', fechaHoy, 'Día:', diaSemana, 'Día (sin tildes):', diaSemanaSinTildes);
 
     // 1. Obtener registros PERMANENTES activos que incluyan el día de hoy
-    const { data: permanentes, error: errorPerm } = await insforge.database
+    const { data: permanentesAccento, error: errorPermAccento } = await insforge.database
       .from('registro_salida_pie')
       .select('*')
       .eq('tipo_registro', 'permanente')
       .eq('activo', true)
-      .contains('dias_semana', [diaSemana]);
+      .contains('dias_semana', [diaSemanaSinTildes]);
 
-    if (errorPerm) {
-      console.error('Error permanentes:', errorPerm);
+    if (errorPermAccento) console.error('Error permanentes (sin tildes):', errorPermAccento);
+
+    let permanentes = permanentesAccento || [];
+
+    // Si existen registros con el acento (ej: "miércoles"), los incluimos también.
+    if (diaSemanaSinTildes !== diaSemana) {
+      const { data: permanentesConAcento, error: errorPermAcento } = await insforge.database
+        .from('registro_salida_pie')
+        .select('*')
+        .eq('tipo_registro', 'permanente')
+        .eq('activo', true)
+        .contains('dias_semana', [diaSemana]);
+
+      if (errorPermAcento) console.error('Error permanentes (con acento):', errorPermAcento);
+      permanentes = [...permanentes, ...(permanentesConAcento || [])];
     }
 
     // 2. Obtener registros EVENTUALES activos que incluyan la fecha de hoy

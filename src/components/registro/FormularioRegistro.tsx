@@ -110,10 +110,11 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   const puedeModificarDia = (dia: string) => {
     const ahora = new Date();
     const diaSemanaHoy = ahora.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
+    const diaSemanaHoySinTildes = diaSemanaHoy.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const horaActual = ahora.getHours();
     
     // Si es después de la 1 PM y el día es hoy, NO puede modificar
-    if (horaActual >= 13 && dia === diaSemanaHoy) {
+    if (horaActual >= 13 && (dia === diaSemanaHoy || dia === diaSemanaHoySinTildes)) {
       return false;
     }
     
@@ -185,8 +186,13 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       // Verificar si alguno de los días seleccionados es HOY y es después de 1 PM
       const ahora = new Date();
       const diaSemanaHoy = ahora.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
+      const diaSemanaHoySinTildes = diaSemanaHoy.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       
-      if (ahora.getHours() >= 13 && diasSeleccionados.includes(diaSemanaHoy as DiaSemana)) {
+      if (
+        ahora.getHours() >= 13 &&
+        (diasSeleccionados.includes(diaSemanaHoy as DiaSemana) ||
+          diasSeleccionados.includes(diaSemanaHoySinTildes as DiaSemana))
+      ) {
         setError(`No puede incluir ${diaSemanaHoy} después de la 1:00 PM del mismo día`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
