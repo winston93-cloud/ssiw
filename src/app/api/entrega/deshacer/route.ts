@@ -3,7 +3,7 @@ import { insforge } from '@/lib/insforge';
 
 export async function POST(request: NextRequest) {
   try {
-    const { alumno_ref } = await request.json();
+    const { alumno_ref, fecha } = await request.json();
 
     if (!alumno_ref) {
       return NextResponse.json(
@@ -12,14 +12,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const hoy = new Date().toISOString().split('T')[0];
+    const fechaHoy = fecha || new Date().toISOString().split('T')[0];
 
     // Eliminar el registro de entrega del día de hoy
     const { error } = await insforge.database
       .from('entregas_alumnos')
       .delete()
       .eq('alumno_ref', alumno_ref)
-      .eq('fecha', hoy);
+      .eq('fecha', fechaHoy);
 
     if (error) {
       console.error('Error al deshacer entrega:', error);

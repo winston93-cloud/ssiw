@@ -3,7 +3,7 @@ import { insforge } from '@/lib/insforge';
 
 export async function POST(request: NextRequest) {
   try {
-    const { alumno_ref, maestra_id, maestra_nombre } = await request.json();
+    const { alumno_ref, maestra_id, maestra_nombre, fecha } = await request.json();
 
     if (!alumno_ref || !maestra_id || !maestra_nombre) {
       return NextResponse.json(
@@ -12,14 +12,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const hoy = new Date().toISOString().split('T')[0];
+    const fechaHoy = fecha || new Date().toISOString().split('T')[0];
 
     // Verificar si ya fue entregado hoy
     const { data: existente } = await insforge.database
       .from('entregas_alumnos')
       .select('*')
       .eq('alumno_ref', alumno_ref)
-      .eq('fecha', hoy)
+      .eq('fecha', fechaHoy)
       .single();
 
     if (existente) {
@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
       .insert({
         alumno_ref,
         maestra_id,
-        maestra_nombre
+        maestra_nombre,
+        fecha: fechaHoy,
       })
       .select()
       .single();

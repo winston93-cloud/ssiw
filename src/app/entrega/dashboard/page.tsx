@@ -75,8 +75,8 @@ export default function EntregaDashboardPage() {
     try {
       const endpoint = yaEntregado ? '/api/entrega/deshacer' : '/api/entrega/registrar';
       const body = yaEntregado 
-        ? { alumno_ref }
-        : { alumno_ref, maestra_id: maestra.id, maestra_nombre: maestra.nombre };
+        ? { alumno_ref, fecha: fechaSeleccionada }
+        : { alumno_ref, maestra_id: maestra.id, maestra_nombre: maestra.nombre, fecha: fechaSeleccionada };
 
       const response = await fetch(endpoint, {
         method: 'POST',
