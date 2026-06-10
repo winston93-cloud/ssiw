@@ -168,21 +168,6 @@ export default function GuiaPage() {
               </a>
             </div>
           </div>
-
-          <div className="guia-hero-cards">
-            {STEPS.slice(0, 3).map((s) => (
-              <a
-                key={s.id}
-                href={`#${s.id}`}
-                className="guia-mini-card"
-                style={{ '--card-accent': s.accent, '--card-soft': s.accentSoft } as React.CSSProperties}
-              >
-                <span className="guia-mini-icon">{s.icon}</span>
-                <span className="guia-mini-num">Paso {s.num}</span>
-                <span className="guia-mini-title">{s.title}</span>
-              </a>
-            ))}
-          </div>
         </section>
 
         <nav className="guia-rail" aria-label="Pasos de la guía">

@@ -140,16 +140,11 @@
 
 /* hero */
 .guia-hero {
-  display: grid;
-  gap: 2rem;
   padding: 2.5rem 0 2rem;
 }
 
 @media (min-width: 960px) {
   .guia-hero {
-    grid-template-columns: 1.1fr 0.9fr;
-    align-items: center;
-    gap: 3rem;
     padding: 3.5rem 0 2.5rem;
   }
 }
@@ -230,60 +225,6 @@
 .guia-btn-ghost:hover {
   border-color: #93c5fd;
   background: #eff6ff;
-}
-
-/* mini cards hero */
-.guia-hero-cards {
-  display: grid;
-  gap: 0.85rem;
-}
-
-@media (min-width: 960px) {
-  .guia-hero-cards {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-  }
-
-  .guia-hero-cards .guia-mini-card:first-child {
-    grid-column: 1 / -1;
-  }
-}
-
-.guia-mini-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1.15rem 1.25rem;
-  border-radius: 18px;
-  text-decoration: none;
-  color: var(--guia-ink);
-  background: var(--guia-white);
-  border: 2px solid var(--card-soft, #e2e8f0);
-  box-shadow: var(--guia-shadow);
-  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-}
-
-.guia-mini-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--guia-shadow-lg);
-  border-color: var(--card-accent);
-}
-
-.guia-mini-icon {
-  font-size: 1.5rem;
-}
-
-.guia-mini-num {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--card-accent);
-}
-
-.guia-mini-title {
-  font-weight: 700;
-  font-size: 1rem;
 }
 
 /* rail nav */
