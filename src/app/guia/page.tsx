@@ -249,17 +249,6 @@ export default function GuiaPage() {
             <h2>¿Listo? Entra al portal</h2>
             <p>Guarda este enlace o escanea el QR de nuevo cuando lo necesites.</p>
 
-            <div className="guia-qr-wrap">
-              <img
-                src="/qr-ssiw-login.png"
-                alt="Código QR para ingresar a https://ssiw.vercel.app/login"
-                width={220}
-                height={220}
-                className="guia-qr"
-              />
-              <span className="guia-qr-caption">Escanea para ir al login</span>
-            </div>
-
             <a href={PORTAL_URL} className="guia-url-mega">
               {PORTAL_URL}
             </a>
