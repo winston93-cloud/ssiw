@@ -230,9 +230,22 @@ export default function GuiaPage() {
         <section className="guia-cta" id="acceso">
           <div className="guia-cta-glow" aria-hidden />
           <div className="guia-cta-inner">
-            <span className="guia-cta-emoji" aria-hidden>
-              🚀
-            </span>
+            <div className="guia-cta-logos">
+              <img
+                src="/logos/logo-winston-churchill.png"
+                alt="Instituto Winston Churchill"
+                width={160}
+                height={120}
+                className="guia-cta-logo"
+              />
+              <img
+                src="/logos/logo-winston-educativo.png"
+                alt="Winston Educativo"
+                width={160}
+                height={120}
+                className="guia-cta-logo guia-cta-logo--end"
+              />
+            </div>
             <h2>¿Listo? Entra al portal</h2>
             <p>Guarda este enlace o escanea el QR de nuevo cuando lo necesites.</p>
 
