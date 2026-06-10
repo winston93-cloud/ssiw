@@ -18,6 +18,9 @@ const STEPS = [
     ],
     image: '/guia/01-login.png',
     label: 'Pantalla de acceso',
+    accent: '#2563eb',
+    accentSoft: '#dbeafe',
+    icon: '🔐',
   },
   {
     id: 'paso-2',
@@ -26,10 +29,13 @@ const STEPS = [
     desc: 'Tras iniciar sesión verás tu panel. Desde ahí accedes a los servicios del alumno.',
     tips: [
       'Revisa que aparezca el nombre y número de control correctos arriba a la derecha.',
-      'Para registrar salida a pie, entra al módulo correspondiente desde el menú lateral o la tarjeta principal.',
+      'Para registrar salida a pie, entra al módulo desde el menú lateral o la tarjeta principal.',
     ],
     image: '/guia/02-panel-principal.png',
     label: 'Inicio — Panel principal',
+    accent: '#7c3aed',
+    accentSoft: '#ede9fe',
+    icon: '🏠',
   },
   {
     id: 'paso-3',
@@ -43,6 +49,9 @@ const STEPS = [
     ],
     image: '/guia/03-registro-salida.png',
     label: 'Registro de salida',
+    accent: '#0d9488',
+    accentSoft: '#ccfbf1',
+    icon: '📝',
   },
   {
     id: 'paso-4',
@@ -56,6 +65,9 @@ const STEPS = [
     ],
     image: '/guia/04-permanente.png',
     label: 'Días permanentes',
+    accent: '#16a34a',
+    accentSoft: '#dcfce7',
+    icon: '🔁',
   },
   {
     id: 'paso-5',
@@ -69,6 +81,9 @@ const STEPS = [
     ],
     image: '/guia/05-eventual.png',
     label: 'Fechas eventuales',
+    accent: '#ea580c',
+    accentSoft: '#ffedd5',
+    icon: '📅',
   },
   {
     id: 'paso-6',
@@ -82,6 +97,9 @@ const STEPS = [
     ],
     image: '/guia/06-familiares.png',
     label: 'Gestión de familiares',
+    accent: '#db2777',
+    accentSoft: '#fce7f3',
+    icon: '👨‍👩‍👧',
   },
 ] as const;
 
@@ -100,85 +118,161 @@ export default function GuiaPage() {
 
   return (
     <div className="guia-page">
-      <div className="guia-grid-bg" aria-hidden />
+      <div className="guia-blob guia-blob-a" aria-hidden />
+      <div className="guia-blob guia-blob-b" aria-hidden />
+      <div className="guia-blob guia-blob-c" aria-hidden />
 
-      <div className="guia-inner">
-        <header className="guia-hero">
-          <div className="guia-badge">
-            <span aria-hidden>📱</span>
-            Guía rápida SSIW
+      <header className="guia-topbar">
+        <div className="guia-topbar-inner">
+          <div className="guia-brand">
+            <span className="guia-brand-icon" aria-hidden>
+              <svg viewBox="0 0 32 32" fill="none">
+                <path
+                  d="M16 3L4 10v8c0 7.2 5.2 13.5 12 15 6.8-1.5 12-7.8 12-15v-8L16 3z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+                <path d="M16 11v8M12 15h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </span>
+            <div>
+              <strong>SSIW</strong>
+              <span>Instituto Winston Churchill</span>
+            </div>
           </div>
-          <h1>Cómo usar el portal Winston</h1>
-          <p>
-            Sigue estos pasos para registrar la salida a pie de tu hijo o hija en el{' '}
-            <strong>Sistema de Servicios Integrales Winston</strong>.
-          </p>
-        </header>
+          <a href={PORTAL_URL} className="guia-topbar-cta">
+            Ir al portal →
+          </a>
+        </div>
+      </header>
 
-        <nav className="guia-steps-nav" aria-label="Pasos de la guía">
+      <div className="guia-shell">
+        <section className="guia-hero">
+          <div className="guia-hero-copy">
+            <span className="guia-hero-tag">Guía paso a paso · 6 minutos</span>
+            <h1>
+              Aprende a usar el{' '}
+              <em>portal de salida a pie</em>
+            </h1>
+            <p>
+              Tutorial visual para papás y tutores. Registra permisos, elige días y administra
+              familiares autorizados desde cualquier celular o computadora.
+            </p>
+            <div className="guia-hero-actions">
+              <a href="#paso-1" className="guia-btn-hero">
+                Comenzar tutorial
+              </a>
+              <a href="#acceso" className="guia-btn-ghost">
+                Ir directo al login
+              </a>
+            </div>
+          </div>
+
+          <div className="guia-hero-cards">
+            {STEPS.slice(0, 3).map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="guia-mini-card"
+                style={{ '--card-accent': s.accent, '--card-soft': s.accentSoft } as React.CSSProperties}
+              >
+                <span className="guia-mini-icon">{s.icon}</span>
+                <span className="guia-mini-num">Paso {s.num}</span>
+                <span className="guia-mini-title">{s.title}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <nav className="guia-rail" aria-label="Pasos de la guía">
           {STEPS.map((s) => (
-            <a key={s.id} href={`#${s.id}`} className="guia-step-pill">
-              {s.num}. {s.title.split(' ').slice(0, 2).join(' ')}
+            <a
+              key={s.id}
+              href={`#${s.id}`}
+              className="guia-rail-item"
+              style={{ '--rail-accent': s.accent } as React.CSSProperties}
+            >
+              <span className="guia-rail-dot">{s.num}</span>
+              <span className="guia-rail-label">{s.title}</span>
             </a>
           ))}
         </nav>
 
-        {STEPS.map((step) => (
-          <section key={step.id} id={step.id} className="guia-step">
-            <div className="guia-step-header">
-              <div className="guia-step-num" aria-hidden>
-                {step.num}
-              </div>
-              <div>
-                <h2 className="guia-step-title">{step.title}</h2>
-                <p className="guia-step-desc">{step.desc}</p>
+        <div className="guia-steps">
+          {STEPS.map((step, i) => (
+            <article
+              key={step.id}
+              id={step.id}
+              className={`guia-step-card ${i % 2 === 1 ? 'guia-step-reverse' : ''}`}
+              style={
+                {
+                  '--step-accent': step.accent,
+                  '--step-soft': step.accentSoft,
+                } as React.CSSProperties
+              }
+            >
+              <div className="guia-step-content">
+                <div className="guia-step-badge">
+                  <span className="guia-step-icon">{step.icon}</span>
+                  Paso {step.num} de 6
+                </div>
+                <h2>{step.title}</h2>
+                <p className="guia-step-lead">{step.desc}</p>
                 <ul className="guia-step-tips">
                   {step.tips.map((tip) => (
                     <li key={tip}>{tip}</li>
                   ))}
                 </ul>
               </div>
+
+              <figure className="guia-step-visual">
+                <div className="guia-shot-frame">
+                  <img
+                    src={step.image}
+                    alt={`Paso ${step.num}: ${step.title}`}
+                    width={1280}
+                    height={720}
+                    loading={step.num <= 2 ? 'eager' : 'lazy'}
+                  />
+                </div>
+                <figcaption>{step.label}</figcaption>
+              </figure>
+            </article>
+          ))}
+        </div>
+
+        <section className="guia-cta" id="acceso">
+          <div className="guia-cta-glow" aria-hidden />
+          <div className="guia-cta-inner">
+            <span className="guia-cta-emoji" aria-hidden>
+              🚀
+            </span>
+            <h2>¿Listo? Entra al portal</h2>
+            <p>Guarda este enlace o escanea el QR de nuevo cuando lo necesites.</p>
+
+            <a href={PORTAL_URL} className="guia-url-mega">
+              {PORTAL_URL}
+            </a>
+
+            <div className="guia-cta-buttons">
+              <a href={PORTAL_URL} className="guia-btn-mega">
+                Ingresar al Sistema SSIW
+              </a>
+              <button type="button" className="guia-btn-copy" onClick={copyUrl}>
+                {copied ? '✓ Copiado' : 'Copiar enlace'}
+              </button>
             </div>
-
-            <figure className="guia-shot-wrap">
-              <div className="guia-shot-inner">
-                <img
-                  src={step.image}
-                  alt={`Paso ${step.num}: ${step.title}`}
-                  width={1280}
-                  height={720}
-                  loading={step.num <= 2 ? 'eager' : 'lazy'}
-                />
-              </div>
-              <figcaption className="guia-shot-label">{step.label}</figcaption>
-            </figure>
-          </section>
-        ))}
-
-        <section className="guia-cta-section" id="acceso">
-          <h2>¿Listo para entrar?</h2>
-          <p>Usa esta dirección para acceder al portal desde cualquier dispositivo.</p>
-
-          <a href={PORTAL_URL} className="guia-url-display">
-            {PORTAL_URL}
-          </a>
-
-          <a href={PORTAL_URL} className="guia-btn-primary">
-            Ir al portal SSIW
-            <span aria-hidden>→</span>
-          </a>
-
-          <button type="button" className="guia-btn-secondary" onClick={copyUrl}>
-            {copied ? '✓ Enlace copiado' : 'Copiar enlace'}
-          </button>
+          </div>
         </section>
 
         <footer className="guia-footer">
-          © {new Date().getFullYear()} Instituto Winston Churchill · SSIW
+          © {new Date().getFullYear()} Instituto Winston Churchill · Sistema de Servicios Integrales
+          Winston
         </footer>
       </div>
 
-      <div className="guia-sticky-cta">
+      <div className="guia-sticky">
         <a href={PORTAL_URL}>Ingresar al sistema →</a>
       </div>
     </div>
