@@ -91,7 +91,7 @@ export default function LoginPage() {
                   disabled={loading}
                 />
                 <label htmlFor="alumnoRef" className="floating-label">
-                  Password
+                  Número de control
                 </label>
               </div>
               {error && (
