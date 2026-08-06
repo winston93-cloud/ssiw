@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
+import { isErrorResponse, requireMaestraSession } from '@/lib/ssiwSession';
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = requireMaestraSession(request);
+    if (isErrorResponse(auth)) return auth;
+
     const { alumno_ref, maestra_id, maestra_nombre, fecha } = await request.json();
 
     if (!alumno_ref || !maestra_id || !maestra_nombre) {

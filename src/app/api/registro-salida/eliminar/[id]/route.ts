@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
+import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function DELETE(
   request: NextRequest,
@@ -8,16 +9,28 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Verificar hora límite (1pm)
-    // const ahora = new Date();
-    // const horaActual = ahora.getHours();
-    
-    // if (horaActual >= 13) {
-    //   return NextResponse.json(
-    //     { success: false, error: 'Solo puede eliminar antes de la 1:00 PM' },
-    //     { status: 400 }
-    //   );
-    // }
+    const auth = requireAlumnoSession(request);
+    if (isErrorResponse(auth)) return auth;
+
+    const { data: registro, error: fetchError } = await insforge.database
+      .from('registro_salida_pie')
+      .select('id, alumno_ref')
+      .eq('id', parseInt(id))
+      .single();
+
+    if (fetchError || !registro) {
+      return NextResponse.json(
+        { success: false, error: 'Registro no encontrado' },
+        { status: 404 }
+      );
+    }
+
+    if (String(registro.alumno_ref) !== String(auth.alumno_ref)) {
+      return NextResponse.json(
+        { success: false, error: 'No autorizado' },
+        { status: 403 }
+      );
+    }
 
     // Marcar como inactivo en lugar de eliminar
     const { error } = await insforge.database

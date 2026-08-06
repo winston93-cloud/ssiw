@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryMySQL } from '@/lib/mysql';
+import { isErrorResponse, requireAlumnoOrMaestra } from '@/lib/ssiwSession';
 
 export async function GET(
   request: NextRequest,
@@ -7,6 +8,8 @@ export async function GET(
 ) {
   try {
     const { alumnoRef } = await params;
+    const auth = requireAlumnoOrMaestra(request, alumnoRef);
+    if (isErrorResponse(auth)) return auth;
 
     // Primero obtener alumno_id desde alumno_ref
     const { data: alumnoData } = await queryMySQL(

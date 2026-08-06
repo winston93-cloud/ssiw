@@ -121,6 +121,8 @@ export default function EntregaDashboardPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('maestra');
+    localStorage.removeItem('alumno');
+    void fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
   };
 

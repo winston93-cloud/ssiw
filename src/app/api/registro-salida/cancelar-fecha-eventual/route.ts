@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
+import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function POST(request: NextRequest) {
   try {
     const { id, fecha } = await request.json();
+
+    const auth = requireAlumnoSession(request);
+    if (isErrorResponse(auth)) return auth;
 
     if (!id || !fecha) {
       return NextResponse.json(
@@ -17,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Obtener el registro actual
     const { data: registroActual, error: errorGet } = await insforge.database
       .from('registro_salida_pie')
-      .select('fechas_especificas, tipo_registro')
+      .select('fechas_especificas, tipo_registro, alumno_ref')
       .eq('id', id)
       .single();
 
@@ -26,6 +30,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Registro no encontrado' },
         { status: 404 }
+      );
+    }
+
+    if (String(registroActual.alumno_ref) !== String(auth.alumno_ref)) {
+      return NextResponse.json(
+        { success: false, error: 'No autorizado' },
+        { status: 403 }
       );
     }
 

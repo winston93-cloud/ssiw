@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
+import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function GET(
   request: NextRequest,
@@ -7,6 +8,8 @@ export async function GET(
 ) {
   try {
     const { alumnoRef } = await params;
+    const auth = requireAlumnoSession(request, alumnoRef);
+    if (isErrorResponse(auth)) return auth;
 
     const { data: registros, error } = await insforge.database
       .from('registro_salida_pie')
@@ -35,3 +38,5 @@ export async function GET(
     );
   }
 }
+
+

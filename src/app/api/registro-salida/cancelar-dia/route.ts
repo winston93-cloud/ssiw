@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
+import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { id, dia } = body;
+
+    const auth = requireAlumnoSession(request);
+    if (isErrorResponse(auth)) return auth;
 
     // Obtener registro con bloqueo para evitar race conditions
     const { data: registro, error: fetchError } = await insforge.database
@@ -18,6 +22,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Registro no encontrado o ya inactivo' },
         { status: 404 }
+      );
+    }
+
+    if (String(registro.alumno_ref) !== String(auth.alumno_ref)) {
+      return NextResponse.json(
+        { success: false, error: 'No autorizado' },
+        { status: 403 }
       );
     }
 

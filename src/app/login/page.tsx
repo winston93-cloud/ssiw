@@ -14,8 +14,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
+    const maestraData = localStorage.getItem('maestra');
     const alumnoData = localStorage.getItem('alumno');
-    if (alumnoData) {
+    if (maestraData) {
+      router.push('/entrega/dashboard');
+    } else if (alumnoData) {
       router.push('/dashboard');
     }
   }, [router]);
@@ -29,12 +32,12 @@ export default function LoginPage() {
       const response = await verificarAlumno(alumnoRef.trim());
 
       if (response.success && response.data) {
+        localStorage.removeItem('alumno');
+        localStorage.removeItem('maestra');
         if (response.tipo === 'maestra') {
-          // Es una maestra
           localStorage.setItem('maestra', JSON.stringify(response.data));
-          router.push('/dashboard'); // Van al mismo dashboard
+          router.push('/entrega/dashboard');
         } else {
-          // Es un alumno/papa
           localStorage.setItem('alumno', JSON.stringify(response.data));
           router.push('/dashboard');
         }

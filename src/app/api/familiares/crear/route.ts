@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryMySQL } from '@/lib/mysql';
+import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,10 +16,20 @@ export async function POST(request: NextRequest) {
       familiar_email
     } = body;
 
+    const auth = requireAlumnoSession(request);
+    if (isErrorResponse(auth)) return auth;
+
     if (!alumno_id || !familiar_nombre) {
       return NextResponse.json(
         { success: false, error: 'Faltan datos requeridos' },
         { status: 400 }
+      );
+    }
+
+    if (Number(alumno_id) !== Number(auth.alumno_id)) {
+      return NextResponse.json(
+        { success: false, error: 'No autorizado' },
+        { status: 403 }
       );
     }
 

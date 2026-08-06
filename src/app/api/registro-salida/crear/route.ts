@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
 import { queryMySQL } from '@/lib/mysql';
+import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { alumno_ref, tipo_registro, dias_semana, fechas } = body;
+
+    const auth = requireAlumnoSession(request, alumno_ref);
+    if (isErrorResponse(auth)) return auth;
 
     if (!alumno_ref || !tipo_registro) {
       return NextResponse.json(

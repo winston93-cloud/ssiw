@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
 import { queryMySQL } from '@/lib/mysql';
+import { isErrorResponse, requireMaestraSession } from '@/lib/ssiwSession';
 
 function sinTildes(text: string) {
   // Normaliza y elimina diacríticos para que "miércoles" matchee con "miercoles"
@@ -9,6 +10,9 @@ function sinTildes(text: string) {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = requireMaestraSession(request);
+    if (isErrorResponse(auth)) return auth;
+
     const hoy = new Date();
     const fechaParam = request.nextUrl.searchParams.get('fecha');
     const fechaHoy = fechaParam || hoy.toISOString().split('T')[0]; // YYYY-MM-DD
