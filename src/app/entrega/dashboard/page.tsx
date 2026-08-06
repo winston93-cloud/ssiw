@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { urlServiciosAdminDashboard } from '@/lib/serviciosAdminUrl';
 
 interface Alumno {
   alumno_ref: string;
@@ -126,6 +127,10 @@ export default function EntregaDashboardPage() {
     router.push('/login');
   };
 
+  const volverAlDashboardPrincipal = () => {
+    window.location.href = urlServiciosAdminDashboard();
+  };
+
   const alumnosFiltrados = datos?.alumnos.filter(a => {
     // Filtro de búsqueda
     const matchBusqueda = a.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -190,6 +195,16 @@ export default function EntregaDashboardPage() {
         </nav>
 
         <div className="sidebar-footer">
+          <button
+            className="nav-item"
+            onClick={volverAlDashboardPrincipal}
+            title="Volver al dashboard"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            {!sidebarCollapsed && <span>Volver al dashboard</span>}
+          </button>
           <button className="nav-item logout" onClick={handleLogout} title="Cerrar Sesión">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -208,6 +223,29 @@ export default function EntregaDashboardPage() {
           </button>
 
           <div className="header-title">
+            <button
+              type="button"
+              onClick={volverAlDashboardPrincipal}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+                padding: 0,
+                marginBottom: '0.15rem',
+                fontSize: '0.8rem',
+                opacity: 0.85,
+              }}
+              title="Volver al dashboard principal"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+              Dashboard principal
+            </button>
             <h1>Entrega a Pie</h1>
             <p className="breadcrumb">Instituto Winston Churchill / Control de Entregas</p>
           </div>
