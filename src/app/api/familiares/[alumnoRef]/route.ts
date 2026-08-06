@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryMySQL } from '@/lib/mysql';
+import { createDbServiciosAdmin, fetchAlumnoByRef } from '@/lib/insforge';
 import { isErrorResponse, requireAlumnoOrMaestra } from '@/lib/ssiwSession';
 
 export async function GET(
@@ -11,43 +11,36 @@ export async function GET(
     const auth = requireAlumnoOrMaestra(request, alumnoRef);
     if (isErrorResponse(auth)) return auth;
 
-    // Primero obtener alumno_id desde alumno_ref
-    const { data: alumnoData } = await queryMySQL(
-      'SELECT alumno_id FROM alumno WHERE alumno_ref = ? LIMIT 1',
-      [alumnoRef]
-    );
-
-    if (!alumnoData || (alumnoData as any[]).length === 0) {
+    const { data: alumno, error: alumnoError } = await fetchAlumnoByRef(alumnoRef);
+    if (alumnoError || !alumno) {
       return NextResponse.json(
         { success: false, error: 'Alumno no encontrado' },
         { status: 404 }
       );
     }
 
-    const alumno_id = (alumnoData as any[])[0].alumno_id;
+    const alumno_id = Number(alumno.alumno_id);
+    const db = createDbServiciosAdmin();
+    const { data: familiares, error } = await db
+      .from('alumno_familiar')
+      .select(
+        'familiar_id, alumno_id, tutor_id, familiar_nombre, familiar_app, familiar_apm, familiar_tel, familiar_cel, familiar_email'
+      )
+      .eq('alumno_id', alumno_id)
+      .order('tutor_id', { ascending: true })
+      .order('familiar_app', { ascending: true });
 
-    // Obtener familiares autorizados
-    const { data: familiares } = await queryMySQL(
-      `SELECT 
-        familiar_id,
-        alumno_id,
-        tutor_id,
-        familiar_nombre,
-        familiar_app,
-        familiar_apm,
-        familiar_tel,
-        familiar_cel,
-        familiar_email
-      FROM alumno_familiar 
-      WHERE alumno_id = ?
-      ORDER BY tutor_id ASC, familiar_app ASC`,
-      [alumno_id]
-    );
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message || String(error) },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       alumno_id,
-      familiares: familiares || []
+      familiares: familiares || [],
     });
   } catch (error: any) {
     console.error('Error al obtener familiares:', error);

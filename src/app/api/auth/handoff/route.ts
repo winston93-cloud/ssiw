@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { queryMySQL } from '@/lib/mysql'
+import {
+  fetchAlumnoByIdAndRef,
+  nombreCompletoAlumno,
+} from '@/lib/insforge'
 import {
   applySessionCookie,
   signSession,
@@ -29,17 +32,21 @@ export async function POST(request: NextRequest) {
     }
 
     if (handoff.role === 'alumno') {
-      const { data: alumnos, error } = await queryMySQL(
-        'SELECT * FROM alumno WHERE alumno_ref = ? AND alumno_id = ? LIMIT 1',
-        [handoff.alumno_ref, handoff.alumno_id]
+      const { data: alumnoRow, error } = await fetchAlumnoByIdAndRef(
+        Number(handoff.alumno_id),
+        Number(handoff.alumno_ref)
       )
-      if (error || !alumnos || (alumnos as unknown[]).length === 0) {
+      if (error || !alumnoRow) {
         return NextResponse.json(
           { success: false, error: 'Alumno no encontrado' },
           { status: 404 }
         )
       }
-      const alumno = (alumnos as Record<string, unknown>[])[0]
+      const alumno = {
+        ...alumnoRow,
+        alumno_nombre_completo: nombreCompletoAlumno(alumnoRow as any),
+        alumno_ref: String(alumnoRow.alumno_ref ?? handoff.alumno_ref),
+      }
       const sessionToken = signSession({
         role: 'alumno',
         displayName: handoff.displayName,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryMySQL } from '@/lib/mysql';
+import { createDbServiciosAdmin } from '@/lib/insforge';
 import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function DELETE(request: NextRequest) {
@@ -17,12 +17,15 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { data: rows } = await queryMySQL(
-      'SELECT familiar_id, alumno_id FROM alumno_familiar WHERE familiar_id = ? LIMIT 1',
-      [familiar_id]
-    );
-    const familiar = (rows as any[])?.[0];
-    if (!familiar) {
+    const db = createDbServiciosAdmin();
+    const { data: familiar, error: fetchError } = await db
+      .from('alumno_familiar')
+      .select('familiar_id, alumno_id')
+      .eq('familiar_id', familiar_id)
+      .limit(1)
+      .maybeSingle();
+
+    if (fetchError || !familiar) {
       return NextResponse.json(
         { success: false, error: 'Familiar no encontrado' },
         { status: 404 }
@@ -35,10 +38,18 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { data } = await queryMySQL(
-      'DELETE FROM alumno_familiar WHERE familiar_id = ?',
-      [familiar_id]
-    );
+    const { data, error } = await db
+      .from('alumno_familiar')
+      .delete()
+      .eq('familiar_id', familiar_id)
+      .select();
+
+    if (error) {
+      return NextResponse.json(
+        { success: false, error: error.message || String(error) },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
@@ -49,4 +60,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-

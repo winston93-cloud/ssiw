@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { insforge } from '@/lib/insforge';
-import { queryMySQL } from '@/lib/mysql';
+import { insforge, fetchAlumnoByRef } from '@/lib/insforge';
 import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function POST(request: NextRequest) {
@@ -18,13 +17,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar alumno en MySQL
-    const { data: alumnos, error: alumnoError } = await queryMySQL(
-      'SELECT * FROM alumno WHERE alumno_ref = ? LIMIT 1',
-      [alumno_ref]
-    );
+    // Verificar alumno en Winston Servicios (InsForge)
+    const { data: alumno, error: alumnoError } = await fetchAlumnoByRef(alumno_ref);
 
-    if (alumnoError || !alumnos || (alumnos as any[]).length === 0) {
+    if (alumnoError || !alumno) {
       return NextResponse.json(
         { success: false, error: 'Alumno no encontrado' },
         { status: 404 }

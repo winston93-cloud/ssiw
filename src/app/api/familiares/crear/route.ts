@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryMySQL } from '@/lib/mysql';
+import { createDbServiciosAdmin } from '@/lib/insforge';
 import { isErrorResponse, requireAlumnoSession } from '@/lib/ssiwSession';
 
 export async function POST(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       familiar_apm,
       familiar_tel,
       familiar_cel,
-      familiar_email
+      familiar_email,
     } = body;
 
     const auth = requireAlumnoSession(request);
@@ -33,42 +33,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-    const { data, error } = await queryMySQL(
-      `INSERT INTO alumno_familiar (
+    const fechaHoy = new Date().toISOString().split('T')[0];
+    const db = createDbServiciosAdmin();
+    const { data, error } = await db
+      .from('alumno_familiar')
+      .insert({
         alumno_id,
-        tutor_id,
+        tutor_id: tutor_id > 0 ? tutor_id : null,
         familiar_nombre,
-        familiar_app,
-        familiar_apm,
-        familiar_tel,
-        familiar_cel,
-        familiar_email,
-        familiar_recibir_email,
-        familiar_vive,
-        familiar_factura,
-        familiar_registro
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        alumno_id,
-        tutor_id > 0 ? tutor_id : null,  // NULL en lugar de 0
-        familiar_nombre,
-        familiar_app || '',
-        familiar_apm || '',
-        familiar_tel || '',
-        familiar_cel || '',
-        familiar_email || '',
-        0,
-        1,
-        0,
-        fechaHoy
-      ]
-    );
+        familiar_app: familiar_app || '',
+        familiar_apm: familiar_apm || '',
+        familiar_tel: familiar_tel || '',
+        familiar_cel: familiar_cel || '',
+        familiar_email: familiar_email || '',
+        familiar_recibir_email: 0,
+        familiar_vive: 1,
+        familiar_factura: 0,
+        familiar_registro: fechaHoy,
+      })
+      .select();
 
     if (error) {
       return NextResponse.json(
-        { success: false, error: error },
+        { success: false, error: error.message || String(error) },
         { status: 500 }
       );
     }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryMySQL } from '@/lib/mysql';
 import { verificarPIN } from '@/lib/auth-maestras';
+import { fetchAlumnoByRef, nombreCompletoAlumno } from '@/lib/insforge';
 import {
   allowLegacyLogin,
   applySessionCookie,
@@ -33,29 +33,29 @@ export async function GET(
       }
     }
 
-    const { data: alumnos, error } = await queryMySQL(
-      'SELECT * FROM alumno WHERE alumno_ref = ? LIMIT 1',
-      [alumnoRef]
-    );
+    const { data: alumnoRow, error } = await fetchAlumnoByRef(alumnoRef);
 
-    if (error || !alumnos || (alumnos as any[]).length === 0) {
+    if (error || !alumnoRow) {
       return NextResponse.json(
         { success: false, error: 'Número de control no encontrado' },
         { status: 404 }
       );
     }
 
-    const alumno = (alumnos as any[])[0];
-    const displayName =
-      alumno.alumno_nombre_completo ||
-      [alumno.alumno_nombre, alumno.alumno_app, alumno.alumno_apm].filter(Boolean).join(' ') ||
-      String(alumno.alumno_ref);
+    const alumno = {
+      ...alumnoRow,
+      alumno_nombre_completo: nombreCompletoAlumno(alumnoRow as any),
+      alumno_ref: String(alumnoRow.alumno_ref ?? alumnoRef),
+      alumno_id: Number(alumnoRow.alumno_id),
+    };
+
+    const displayName = nombreCompletoAlumno(alumno as any);
 
     const sessionToken = signSession({
       role: 'alumno',
       displayName,
       alumno_ref: String(alumno.alumno_ref),
-      alumno_id: Number(alumno.alumno_id),
+      alumno_id: alumno.alumno_id,
     });
 
     const res = NextResponse.json({
