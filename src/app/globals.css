@@ -804,6 +804,53 @@ body {
   flex: 1;
 }
 
+.btn-volver-dashboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  margin-bottom: 0.65rem;
+  background: #ffffff;
+  color: #003366;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn-volver-dashboard svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-volver-dashboard:hover {
+  transform: translateY(-1px);
+  background: #e8f1ff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.btn-volver-dashboard:focus-visible {
+  outline: 2px solid #7dd3fc;
+  outline-offset: 2px;
+}
+
+.nav-item.back-dashboard {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  margin-bottom: 0.35rem;
+}
+
+.nav-item.back-dashboard:hover {
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+
 .header-title h1 {
   font-size: var(--font-heading);
   font-weight: var(--weight-bold);

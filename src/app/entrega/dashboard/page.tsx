@@ -196,7 +196,7 @@ export default function EntregaDashboardPage() {
 
         <div className="sidebar-footer">
           <button
-            className="nav-item"
+            className="nav-item back-dashboard"
             onClick={volverAlDashboardPrincipal}
             title="Volver al dashboard"
           >
@@ -225,26 +225,14 @@ export default function EntregaDashboardPage() {
           <div className="header-title">
             <button
               type="button"
+              className="btn-volver-dashboard"
               onClick={volverAlDashboardPrincipal}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                background: 'transparent',
-                border: 'none',
-                color: 'inherit',
-                cursor: 'pointer',
-                padding: 0,
-                marginBottom: '0.15rem',
-                fontSize: '0.8rem',
-                opacity: 0.85,
-              }}
               title="Volver al dashboard principal"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
               </svg>
-              Dashboard principal
+              Volver al dashboard
             </button>
             <h1>Entrega a Pie</h1>
             <p className="breadcrumb">Instituto Winston Churchill / Control de Entregas</p>
