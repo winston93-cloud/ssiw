@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
 import { isErrorResponse, requireMaestraSession } from '@/lib/ssiwSession';
+import { fechaHoyMexico } from '@/lib/fechaMexico';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const fechaHoy = fecha || new Date().toISOString().split('T')[0];
+    const fechaHoy = fecha || fechaHoyMexico();
 
     // Eliminar el registro de entrega del día de hoy
     const { error } = await insforge.database

@@ -3,6 +3,7 @@ import { fetchAlumnosActivosCicloByRefs, nombreCompletoAlumno } from '@/lib/insf
 import { fetchCicloEscolarActual } from '@/lib/cicloEscolar';
 import { insforge } from '@/lib/insforge';
 import { isErrorResponse, requireMaestraSession } from '@/lib/ssiwSession';
+import { fechaHoyMexico } from '@/lib/fechaMexico';
 
 function sinTildes(text: string) {
   // Normaliza y elimina diacríticos para que "miércoles" matchee con "miercoles"
@@ -14,9 +15,8 @@ export async function GET(request: NextRequest) {
     const auth = requireMaestraSession(request);
     if (isErrorResponse(auth)) return auth;
 
-    const hoy = new Date();
     const fechaParam = request.nextUrl.searchParams.get('fecha');
-    const fechaHoy = fechaParam || hoy.toISOString().split('T')[0]; // YYYY-MM-DD
+    const fechaHoy = fechaParam || fechaHoyMexico();
 
     // Usar 12:00 para evitar saltos por zona horaria al parsear YYYY-MM-DD
     const fechaObj = new Date(`${fechaHoy}T12:00:00`);

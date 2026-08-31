@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insforge } from '@/lib/insforge';
 import { isErrorResponse, requireMaestraSession } from '@/lib/ssiwSession';
+import { fechaHoyMexico } from '@/lib/fechaMexico';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const fechaHoy = fecha || new Date().toISOString().split('T')[0];
+    const fechaHoy = fecha || fechaHoyMexico();
 
     // Verificar si ya fue entregado hoy
     const { data: existente } = await insforge.database
@@ -36,12 +37,14 @@ export async function POST(request: NextRequest) {
     // Registrar entrega
     const { data, error } = await insforge.database
       .from('entregas_alumnos')
-      .insert({
-        alumno_ref,
-        maestra_id,
-        maestra_nombre,
-        fecha: fechaHoy,
-      })
+      .insert([
+        {
+          alumno_ref,
+          maestra_id,
+          maestra_nombre,
+          fecha: fechaHoy,
+        },
+      ])
       .select()
       .single();
 

@@ -21,6 +21,7 @@ function AuthHandoffInner() {
         const res = await fetch('/api/auth/handoff', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ token }),
         })
         const data = (await res.json().catch(() => ({}))) as {

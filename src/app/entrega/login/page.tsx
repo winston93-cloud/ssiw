@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { urlServiciosAdminDashboard } from '@/lib/serviciosAdminUrl'
+import { fetchSsiwSession, ssiwFetch, clearMaestraLocal } from '@/lib/entregaAuth'
 
 export default function EntregaLoginPage() {
   const router = useRouter()
@@ -14,10 +15,17 @@ export default function EntregaLoginPage() {
 
   useEffect(() => {
     setMounted(true)
-    const maestraData = localStorage.getItem('maestra')
-    if (maestraData) {
-      router.replace('/entrega/dashboard')
-    }
+
+    ;(async () => {
+      const session = await fetchSsiwSession()
+      if (session?.role === 'maestra') {
+        localStorage.setItem('maestra', JSON.stringify(session.data))
+        router.replace('/entrega/dashboard')
+        return
+      }
+      // localStorage obsoleto sin cookie válida
+      clearMaestraLocal()
+    })()
   }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +34,7 @@ export default function EntregaLoginPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/entrega/login', {
+      const response = await ssiwFetch('/api/entrega/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clave: clave.trim() }),

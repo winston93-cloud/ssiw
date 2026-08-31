@@ -1,11 +1,18 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useEffect, useState, useCallback, type ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { urlServiciosAdminDashboard } from '@/lib/serviciosAdminUrl';
+import { fechaHoyMexico } from '@/lib/fechaMexico';
+import {
+  ssiwFetch,
+  fetchSsiwSession,
+  clearMaestraLocal,
+  type MaestraSessionData,
+} from '@/lib/entregaAuth';
 
 interface Alumno {
-  alumno_ref: string;
+  alumno_ref: string | number;
   nombre_completo: string;
   grado: string;
   grupo: string;
@@ -25,43 +32,75 @@ interface DatosDelDia {
 
 export default function EntregaDashboardPage() {
   const router = useRouter();
-  const [maestra, setMaestra] = useState<any>(null);
+  const [maestra, setMaestra] = useState<MaestraSessionData | null>(null);
   const [datos, setDatos] = useState<DatosDelDia | null>(null);
   const [busqueda, setBusqueda] = useState('');
   const [nivelFiltro, setNivelFiltro] = useState('Todos');
   const [loading, setLoading] = useState(true);
+  const [errorCarga, setErrorCarga] = useState('');
   const [registrando, setRegistrando] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false); // Cerrado por defecto
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Colapsado por defecto
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<Alumno | null>(null);
   const [familiares, setFamiliares] = useState<any[]>([]);
   const [loadingFamiliares, setLoadingFamiliares] = useState(false);
-  const [fechaSeleccionada, setFechaSeleccionada] = useState(() => new Date().toISOString().split('T')[0]);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(() => fechaHoyMexico());
 
-  useEffect(() => {
-    const maestraData = localStorage.getItem('maestra');
-    if (!maestraData) {
-      router.push('/entrega/login');
-    } else {
-      setMaestra(JSON.parse(maestraData));
-      cargarAlumnos(new Date().toISOString().split('T')[0]);
-    }
+  const redirigirLogin = useCallback(() => {
+    clearMaestraLocal();
+    router.replace('/entrega/login');
   }, [router]);
 
-  const cargarAlumnos = async (fecha: string = fechaSeleccionada) => {
+  const cargarAlumnos = useCallback(async (fecha: string) => {
     setLoading(true);
+    setErrorCarga('');
     try {
-      const response = await fetch(`/api/entrega/alumnos-del-dia?fecha=${encodeURIComponent(fecha)}`);
+      const response = await ssiwFetch(
+        `/api/entrega/alumnos-del-dia?fecha=${encodeURIComponent(fecha)}`
+      );
       const data = await response.json();
-      if (data.success) {
-        setDatos(data);
+
+      if (response.status === 401) {
+        redirigirLogin();
+        return;
       }
-    } catch (error) {
-      console.error('Error:', error);
+
+      if (!response.ok || !data.success) {
+        setDatos(null);
+        setErrorCarga(data.error || 'No se pudo cargar la lista de alumnos');
+        return;
+      }
+
+      setDatos(data);
+    } catch {
+      setDatos(null);
+      setErrorCarga('Error de conexión. Revisa tu red e intenta de nuevo.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [redirigirLogin]);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    (async () => {
+      const session = await fetchSsiwSession();
+      if (cancelado) return;
+
+      if (!session || session.role !== 'maestra') {
+        redirigirLogin();
+        return;
+      }
+
+      setMaestra(session.data);
+      localStorage.setItem('maestra', JSON.stringify(session.data));
+      await cargarAlumnos(fechaHoyMexico());
+    })();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [cargarAlumnos, redirigirLogin]);
 
   const handleFechaCambio = (e: ChangeEvent<HTMLInputElement>) => {
     const nuevaFecha = e.target.value;
@@ -69,28 +108,40 @@ export default function EntregaDashboardPage() {
     cargarAlumnos(nuevaFecha);
   };
 
-  const handleToggleEntrega = async (alumno_ref: string, yaEntregado: boolean) => {
+  const handleToggleEntrega = async (alumno_ref: string | number, yaEntregado: boolean) => {
     if (!maestra) return;
 
-    setRegistrando(alumno_ref);
+    const ref = String(alumno_ref);
+    setRegistrando(ref);
     try {
       const endpoint = yaEntregado ? '/api/entrega/deshacer' : '/api/entrega/registrar';
-      const body = yaEntregado 
-        ? { alumno_ref, fecha: fechaSeleccionada }
-        : { alumno_ref, maestra_id: maestra.id, maestra_nombre: maestra.nombre, fecha: fechaSeleccionada };
+      const body = yaEntregado
+        ? { alumno_ref: ref, fecha: fechaSeleccionada }
+        : {
+            alumno_ref: ref,
+            maestra_id: maestra.id,
+            maestra_nombre: maestra.nombre,
+            fecha: fechaSeleccionada,
+          };
 
-      const response = await fetch(endpoint, {
+      const response = await ssiwFetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
-      if (data.success) {
-        await cargarAlumnos();
+      if (response.status === 401) {
+        redirigirLogin();
+        return;
       }
-    } catch (error) {
-      console.error('Error al toggle entrega:', error);
+      if (data.success) {
+        await cargarAlumnos(fechaSeleccionada);
+      } else {
+        setErrorCarga(data.error || 'No se pudo registrar la entrega');
+      }
+    } catch {
+      setErrorCarga('Error al registrar la entrega');
     } finally {
       setRegistrando(null);
     }
@@ -101,7 +152,7 @@ export default function EntregaDashboardPage() {
     setLoadingFamiliares(true);
     
     try {
-      const response = await fetch(`/api/familiares/${alumno.alumno_ref}`);
+      const response = await ssiwFetch(`/api/familiares/${alumno.alumno_ref}`);
       const data = await response.json();
       
       if (data.success) {
@@ -121,9 +172,8 @@ export default function EntregaDashboardPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('maestra');
-    localStorage.removeItem('alumno');
-    void fetch('/api/auth/logout', { method: 'POST' });
+    clearMaestraLocal();
+    void ssiwFetch('/api/auth/logout', { method: 'POST' });
     router.push('/entrega/login');
   };
 
@@ -131,15 +181,16 @@ export default function EntregaDashboardPage() {
     window.location.href = urlServiciosAdminDashboard();
   };
 
-  const alumnosFiltrados = datos?.alumnos.filter(a => {
-    // Filtro de búsqueda
-    const matchBusqueda = a.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      a.alumno_ref.includes(busqueda) ||
-      `${a.grado}${a.grupo}`.toLowerCase().includes(busqueda.toLowerCase());
-    
-    // Filtro de nivel
+  const alumnosFiltrados = datos?.alumnos.filter((a) => {
+    const q = busqueda.toLowerCase().trim();
+    const matchBusqueda =
+      !q ||
+      a.nombre_completo.toLowerCase().includes(q) ||
+      String(a.alumno_ref).includes(q) ||
+      `${a.grado}${a.grupo}`.toLowerCase().includes(q);
+
     const matchNivel = nivelFiltro === 'Todos' || a.nivel_educativo === nivelFiltro;
-    
+
     return matchBusqueda && matchNivel;
   }) || [];
 
@@ -298,6 +349,19 @@ export default function EntregaDashboardPage() {
         </header>
 
         <div className="dashboard-content">
+          {errorCarga && (
+            <div className="entrega-error-banner" role="alert">
+              <span>{errorCarga}</span>
+              <button
+                type="button"
+                onClick={() => cargarAlumnos(fechaSeleccionada)}
+                className="entrega-error-retry"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+
           {/* Filtro de nivel y búsqueda en la misma línea */}
           <div className="controles-top">
             <div className="nivel-filtro-container">
@@ -337,13 +401,29 @@ export default function EntregaDashboardPage() {
                 <svg className="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <h3>{busqueda ? 'Sin resultados' : 'No hay entregas pendientes'}</h3>
-                <p>{busqueda ? 'Intenta con otro término de búsqueda' : 'Todos los alumnos han sido entregados'}</p>
+                <h3>
+                  {errorCarga
+                    ? 'No se pudo cargar la lista'
+                    : busqueda || nivelFiltro !== 'Todos'
+                      ? 'Sin resultados'
+                      : datos && datos.total === 0
+                        ? 'Sin alumnos registrados hoy'
+                        : 'No hay entregas pendientes'}
+                </h3>
+                <p>
+                  {errorCarga
+                    ? 'Toca «Reintentar» o vuelve a iniciar sesión.'
+                    : busqueda || nivelFiltro !== 'Todos'
+                      ? 'Intenta con otro término de búsqueda'
+                      : datos && datos.total === 0
+                        ? 'Ningún alumno tiene salida a pie registrada para este día.'
+                        : 'Todos los alumnos han sido entregados'}
+                </p>
               </div>
             ) : (
               alumnosFiltrados.map((alumno) => (
                 <div
-                  key={alumno.alumno_ref}
+                  key={String(alumno.alumno_ref)}
                   className={`alumno-card ${alumno.entregado ? 'entregado' : ''}`}
                 >
                   <div 
@@ -375,10 +455,10 @@ export default function EntregaDashboardPage() {
                   <div className="alumno-actions">
                     <button
                       onClick={() => handleToggleEntrega(alumno.alumno_ref, alumno.entregado)}
-                      disabled={registrando === alumno.alumno_ref}
+                      disabled={registrando === String(alumno.alumno_ref)}
                       className={alumno.entregado ? "btn-deshacer" : "btn-entregar"}
                     >
-                      {registrando === alumno.alumno_ref ? (
+                      {registrando === String(alumno.alumno_ref) ? (
                         <>
                           <div className="spinner-small"></div>
                           {alumno.entregado ? 'Deshaciendo...' : 'Registrando...'}
