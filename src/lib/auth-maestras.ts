@@ -1,11 +1,11 @@
 export const MAESTRAS = {
   auxiliar1: {
     id: 'auxiliar1',
-    nombre: 'Entregas a pie',
+    nombre: 'Maestra Auxiliar 1',
   },
   auxiliar2: {
     id: 'auxiliar2',
-    nombre: 'Entregas a pie',
+    nombre: 'Maestra Auxiliar 2',
   },
 } as const
 
