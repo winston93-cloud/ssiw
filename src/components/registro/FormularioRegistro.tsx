@@ -398,9 +398,9 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
   if (loadingRegistros) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="loading-spinner-modern mb-6"></div>
-        <p className="text-sm font-medium opacity-60">Cargando...</p>
+      <div className="registro-loading">
+        <div className="loading-spinner-modern"></div>
+        <p>Cargando...</p>
       </div>
     );
   }
@@ -419,21 +419,17 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
       {/* Registro Permanente — siempre 5 días L–V */}
       <div className="registro-permanente-card">
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-          <div>
-            <h3 className="text-xl font-bold">🔄 Registro Permanente</h3>
-            <p className="text-sm opacity-70 mt-1">
+        <div className="registro-permanente-header">
+          <div className="registro-permanente-header-main">
+            <h3>🔄 Registro Permanente</h3>
+            <p>
               Activa o desactiva cada día. Solo los días activos se envían a las maestras auxiliares.
             </p>
           </div>
           {registroPermanente && (
-            <div className="text-right">
-              <span className="text-sm font-semibold">
-                Cancelaciones usadas: {registroPermanente.cancelaciones_usadas || 0}/5
-              </span>
-              <p className="text-xs opacity-60 mt-1">
-                Desactivar un día cuenta como cancelación
-              </p>
+            <div className="registro-permanente-stats">
+              <strong>Cancelaciones usadas: {registroPermanente.cancelaciones_usadas || 0}/5</strong>
+              <span>Desactivar un día cuenta como cancelación</span>
             </div>
           )}
         </div>
@@ -491,8 +487,8 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
           })}
         </div>
 
-        <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
-          <p className="text-sm">
+        <div className="registro-permanente-nota">
+          <p>
             ℹ️ Los días activos se repiten cada semana. Puedes activar o desactivar cualquier día en cualquier momento (límite: 5 desactivaciones).
           </p>
         </div>
@@ -501,12 +497,10 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       {/* Registros Eventuales */}
       {registrosEventuales.length > 0 && (
         <div className="registros-eventuales-card">
-          <div className="flex items-center justify-between mb-4">
+          <div className="registro-section-header">
             <div>
-              <h3 className="text-xl font-bold">📅 Días Eventuales</h3>
-              <p className="text-sm opacity-70 mt-1">
-                Días específicos para salida a pie
-              </p>
+              <h3>📅 Días Eventuales</h3>
+              <p>Días específicos para salida a pie</p>
             </div>
           </div>
           <div className="fechas-eventuales-grid-mejorado">
@@ -543,10 +537,9 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
               })
             ))}
           </div>
-          <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
-            <p className="text-sm">
-              ℹ️ <strong>Nota:</strong> Estos son días específicos que has seleccionado. 
-              Puedes eliminarlos individualmente usando el botón "Eliminar".
+          <div className="registro-permanente-nota">
+            <p>
+              ℹ️ Estos son días específicos que has seleccionado. Puedes eliminarlos individualmente usando el botón &quot;Eliminar&quot;.
             </p>
           </div>
         </div>
@@ -554,7 +547,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
       {/* Botón agregar día eventual */}
       {!mostrarFormulario && (
-        <div className="text-center">
+        <div className="registro-acciones-centro">
           <button
             onClick={() => setMostrarFormulario(true)}
             className="btn-agregar-eventual"
@@ -567,7 +560,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
       {/* Formulario eventual */}
       {mostrarFormulario && (
         <div className="formulario-card">
-          <h3 className="text-lg font-bold mb-4">📅 Día Eventual</h3>
+          <h3 className="form-title">📅 Día Eventual</h3>
 
           <form onSubmit={handleSubmit} className="form-content">
             <div className="calendario-eventual">
@@ -610,7 +603,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                     })}
                   </div>
                 </div>
-                <p className="text-sm text-center mt-3 opacity-60">
+                <p className="calendario-resumen">
                   {fechasEventuales.length} {fechasEventuales.length === 1 ? 'día seleccionado' : 'días seleccionados'}
                 </p>
               </div>
@@ -636,12 +629,10 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
       {/* Sección de Familiares Autorizados */}
       <div className="familiares-section">
-        <div className="flex items-center justify-between mb-4">
+        <div className="registro-section-header">
           <div>
-            <h3 className="text-xl font-bold">👥 Familiares Autorizados</h3>
-            <p className="text-sm opacity-70 mt-1">
-              Personas autorizadas para recoger al alumno
-            </p>
+            <h3>👥 Familiares Autorizados</h3>
+            <p>Personas autorizadas para recoger al alumno</p>
           </div>
           <button onClick={handleAgregarFamiliar} className="btn-nuevo-familiar">
             ➕ Agregar Familiar
@@ -701,7 +692,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         {mostrarFormFamiliar && (
           <div className="modal-overlay" onClick={() => setMostrarFormFamiliar(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-xl font-bold mb-4">
+              <h3 className="form-title">
                 {familiarEditando ? '✏️ Editar Familiar' : '➕ Agregar Familiar'}
               </h3>
               <form onSubmit={handleGuardarFamiliar} className="form-familiar">
