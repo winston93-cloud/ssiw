@@ -8,13 +8,24 @@ export type MaestraSessionData = {
   nombre: string;
 };
 
-export type SessionResponse =
-  | { success: true; role: 'maestra'; data: MaestraSessionData }
-  | { success: true; role: 'alumno'; data: Record<string, unknown> }
-  | { success: false; error?: string };
+export type MaestraSession = {
+  success: true;
+  role: 'maestra';
+  data: MaestraSessionData;
+};
+
+export type AlumnoSession = {
+  success: true;
+  role: 'alumno';
+  data: Record<string, unknown>;
+};
+
+export type ActiveSession = MaestraSession | AlumnoSession;
+
+export type SessionResponse = ActiveSession | { success: false; error?: string };
 
 /** Valida cookie `ssiw_session` en servidor. */
-export async function fetchSsiwSession(): Promise<SessionResponse | null> {
+export async function fetchSsiwSession(): Promise<ActiveSession | null> {
   try {
     const res = await ssiwFetch('/api/auth/session');
     const data = (await res.json()) as SessionResponse;
@@ -23,6 +34,13 @@ export async function fetchSsiwSession(): Promise<SessionResponse | null> {
   } catch {
     return null;
   }
+}
+
+/** Sesión de maestra auxiliar o null. */
+export async function fetchMaestraSession(): Promise<MaestraSessionData | null> {
+  const session = await fetchSsiwSession();
+  if (!session || session.role !== 'maestra') return null;
+  return session.data;
 }
 
 export function clearMaestraLocal(): void {

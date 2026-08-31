@@ -6,7 +6,7 @@ import { urlServiciosAdminDashboard } from '@/lib/serviciosAdminUrl';
 import { fechaHoyMexico } from '@/lib/fechaMexico';
 import {
   ssiwFetch,
-  fetchSsiwSession,
+  fetchMaestraSession,
   clearMaestraLocal,
   type MaestraSessionData,
 } from '@/lib/entregaAuth';
@@ -84,16 +84,16 @@ export default function EntregaDashboardPage() {
     let cancelado = false;
 
     (async () => {
-      const session = await fetchSsiwSession();
+      const maestraData = await fetchMaestraSession();
       if (cancelado) return;
 
-      if (!session || session.role !== 'maestra') {
+      if (!maestraData) {
         redirigirLogin();
         return;
       }
 
-      setMaestra(session.data);
-      localStorage.setItem('maestra', JSON.stringify(session.data));
+      setMaestra(maestraData);
+      localStorage.setItem('maestra', JSON.stringify(maestraData));
       await cargarAlumnos(fechaHoyMexico());
     })();
 
