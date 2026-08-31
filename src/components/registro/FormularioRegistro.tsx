@@ -1,25 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Alumno } from '@/types';
+import {
+  DIAS_SEMANA_PIE,
+  diasSemanaNormalizados,
+  type DiaSemanaPie,
+} from '@/lib/dias-semana-pie';
 
 interface FormularioRegistroProps {
   alumno: Alumno;
 }
 
-type DiaSemana = 'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes';
-
-const DIAS_SEMANA: { value: DiaSemana; label: string; short: string }[] = [
-  { value: 'lunes', label: 'Lunes', short: 'L' },
-  { value: 'martes', label: 'Martes', short: 'M' },
-  { value: 'miercoles', label: 'Miércoles', short: 'X' },
-  { value: 'jueves', label: 'Jueves', short: 'J' },
-  { value: 'viernes', label: 'Viernes', short: 'V' },
-];
-
 export default function FormularioRegistro({ alumno }: FormularioRegistroProps) {
-  const [tipoRegistro, setTipoRegistro] = useState<'permanente' | 'eventual'>('permanente');
-  const [diasSeleccionados, setDiasSeleccionados] = useState<DiaSemana[]>([]);
   const [fechasEventuales, setFechasEventuales] = useState<Date[]>([]);
   const [registroPermanente, setRegistroPermanente] = useState<any>(null);
   const [registrosEventuales, setRegistrosEventuales] = useState<any[]>([]);
@@ -79,19 +72,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     }
   };
 
-  const toggleDia = (dia: DiaSemana) => {
-    if (diasSeleccionados.includes(dia)) {
-      setDiasSeleccionados(diasSeleccionados.filter(d => d !== dia));
-    } else {
-      if (diasSeleccionados.length < 5) {
-        setDiasSeleccionados([...diasSeleccionados, dia]);
-      } else {
-        setError('Máximo 5 días');
-        setTimeout(() => setError(''), 3000);
-      }
-    }
-  };
-
   const toggleFecha = (fecha: Date) => {
     const fechaStr = fecha.toISOString().split('T')[0];
     const existe = fechasEventuales.find(f => f.toISOString().split('T')[0] === fechaStr);
@@ -101,10 +81,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     } else {
       setFechasEventuales([...fechasEventuales, fecha]);
     }
-  };
-
-  const puedeModificar = () => {
-    return true; // La validación se hará por día específico
   };
 
   const puedeModificarDia = (dia: string) => {
@@ -173,53 +149,26 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (loading) return; // Prevenir múltiples submits
+    if (loading) return;
     
-    // Validaciones específicas por tipo
-    if (tipoRegistro === 'permanente') {
-      if (diasSeleccionados.length === 0) {
-        setError('Debe seleccionar al menos un día');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
-
-      // Verificar si alguno de los días seleccionados es HOY y es después de 1 PM
-      const ahora = new Date();
-      const diaSemanaHoy = ahora.toLocaleDateString('es-MX', { weekday: 'long' }).toLowerCase();
-      const diaSemanaHoySinTildes = diaSemanaHoy.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      
-      if (
-        ahora.getHours() >= 13 &&
-        (diasSeleccionados.includes(diaSemanaHoy as DiaSemana) ||
-          diasSeleccionados.includes(diaSemanaHoySinTildes as DiaSemana))
-      ) {
-        setError(`No puede incluir ${diaSemanaHoy} después de la 1:00 PM del mismo día`);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
+    if (fechasEventuales.length === 0) {
+      setError('Debe seleccionar al menos una fecha');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
 
-    if (tipoRegistro === 'eventual') {
-      if (fechasEventuales.length === 0) {
-        setError('Debe seleccionar al menos una fecha');
+    const ahora = new Date();
+    const fechaHoy = ahora.toISOString().split('T')[0];
+    
+    if (ahora.getHours() >= 13) {
+      const incluyeHoy = fechasEventuales.some(
+        f => f.toISOString().split('T')[0] === fechaHoy
+      );
+      
+      if (incluyeHoy) {
+        setError('No puede incluir el día de hoy después de la 1:00 PM');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
-      }
-
-      // Verificar si alguna fecha es HOY y es después de 1 PM
-      const ahora = new Date();
-      const fechaHoy = ahora.toISOString().split('T')[0];
-      
-      if (ahora.getHours() >= 13) {
-        const incluyeHoy = fechasEventuales.some(
-          f => f.toISOString().split('T')[0] === fechaHoy
-        );
-        
-        if (incluyeHoy) {
-          setError('No puede incluir el día de hoy después de la 1:00 PM');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          return;
-        }
       }
     }
 
@@ -229,9 +178,9 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     try {
       const data = {
         alumno_ref: alumno.alumno_ref,
-        tipo_registro: tipoRegistro,
-        dias_semana: tipoRegistro === 'permanente' ? diasSeleccionados : null,
-        fechas: tipoRegistro === 'eventual' ? fechasEventuales.map(f => f.toISOString().split('T')[0]) : null,
+        tipo_registro: 'eventual' as const,
+        dias_semana: null,
+        fechas: fechasEventuales.map(f => f.toISOString().split('T')[0]),
       };
 
       const response = await fetch('/api/registro-salida/crear', {
@@ -244,7 +193,6 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
 
       if (result.success) {
         setSuccess('✅ Registro guardado');
-        setDiasSeleccionados([]);
         setFechasEventuales([]);
         setMostrarFormulario(false);
         await cargarRegistros();
@@ -253,7 +201,7 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         setError(result.error || 'Error al guardar');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    } catch (err) {
+    } catch {
       setError('Error al procesar');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
@@ -261,36 +209,52 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
     }
   };
 
-  const handleCancelarDia = async (id: number, dia?: string) => {
-    if (!dia) return;
-    
-    if (!puedeModificarDia(dia)) {
-      setError(`No puede cancelar ${dia} después de la 1:00 PM del mismo día`);
+  const diasActivosPermanente = useMemo(
+    () => new Set(diasSemanaNormalizados(registroPermanente?.dias_semana)),
+    [registroPermanente]
+  );
+
+  const handleToggleDiaPermanente = async (dia: DiaSemanaPie, activar: boolean) => {
+    if (!activar && !puedeModificarDia(dia)) {
+      setError(`No puede desactivar ${dia} después de la 1:00 PM del mismo día`);
+      return;
+    }
+    if (activar && !puedeModificarDia(dia)) {
+      setError(`No puede activar ${dia} después de la 1:00 PM del mismo día`);
       return;
     }
 
-    if (loading) return; // Prevenir múltiples llamadas
+    if (loading) return;
 
-    if (!confirm('¿Cancelar este día?')) return;
+    if (
+      !activar &&
+      (registroPermanente?.cancelaciones_usadas || 0) >= 5
+    ) {
+      setError('Ya usó las 5 cancelaciones permitidas.');
+      return;
+    }
 
     setLoading(true);
+    setError('');
     try {
-      const response = await fetch(`/api/registro-salida/cancelar-dia`, {
+      const response = await fetch('/api/registro-salida/toggle-dia-permanente', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, dia }),
+        body: JSON.stringify({
+          alumno_ref: alumno.alumno_ref,
+          dia,
+          accion: activar ? 'activar' : 'desactivar',
+        }),
       });
-
       const result = await response.json();
-
       if (result.success) {
-        setSuccess('✅ Día cancelado');
+        setSuccess(activar ? `✅ ${dia} activado` : `✅ ${dia} desactivado`);
         await cargarRegistros();
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        setError(result.error || 'Error al cancelar');
+        setError(result.error || 'Error al actualizar el día');
       }
-    } catch (err) {
+    } catch {
       setError('Error al procesar');
     } finally {
       setLoading(false);
@@ -453,59 +417,86 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         </div>
       )}
 
-      {/* Registro Permanente Existente */}
-      {registroPermanente && (
-        <div className="registro-permanente-card">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xl font-bold">🔄 Registro Permanente Activo</h3>
-              <p className="text-sm opacity-70 mt-1">
-                Estos días se repiten cada semana de todos los meses
-              </p>
-            </div>
+      {/* Registro Permanente — siempre 5 días L–V */}
+      <div className="registro-permanente-card">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <h3 className="text-xl font-bold">🔄 Registro Permanente</h3>
+            <p className="text-sm opacity-70 mt-1">
+              Activa o desactiva cada día. Solo los días activos se envían a las maestras auxiliares.
+            </p>
+          </div>
+          {registroPermanente && (
             <div className="text-right">
               <span className="text-sm font-semibold">
                 Cancelaciones usadas: {registroPermanente.cancelaciones_usadas || 0}/5
               </span>
               <p className="text-xs opacity-60 mt-1">
-                Puedes cancelar hasta 5 días individuales
+                Desactivar un día cuenta como cancelación
               </p>
             </div>
-          </div>
-          <div className="dias-permanente-display">
-            {registroPermanente.dias_semana?.map((dia: string) => {
-              const diaLabel = dia.charAt(0).toUpperCase() + dia.slice(1);
-              return (
-                <div key={dia} className="dia-permanente-item-mejorado">
-                  <span className="dia-label-permanent-grande">{diaLabel}</span>
-                  {(registroPermanente.cancelaciones_usadas || 0) < 5 ? (
-                    <button
-                      onClick={() => {
-                        if (confirm(`¿Cancelar "${diaLabel}" permanentemente?\n\nEsto contará como 1 de tus 5 cancelaciones permitidas.`)) {
-                          handleCancelarDia(registroPermanente.id, dia);
-                        }
-                      }}
-                      className="btn-cancelar-dia-mejorado"
-                      disabled={loading}
-                      title="Cancelar este día"
-                    >
-                      🗑️ Cancelar
-                    </button>
-                  ) : (
-                    <span className="text-xs opacity-50">Sin cancelaciones</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
-            <p className="text-sm">
-              ℹ️ <strong>Nota:</strong> Este registro se aplica automáticamente cada semana. 
-              Si necesitas cancelar un día específico, usa el botón "Cancelar" (límite: 5 cancelaciones).
-            </p>
-          </div>
+          )}
         </div>
-      )}
+
+        <div className="dias-permanente-grid">
+          {DIAS_SEMANA_PIE.map(({ value, label }) => {
+            const activo = diasActivosPermanente.has(value);
+            const sinCancelaciones =
+              (registroPermanente?.cancelaciones_usadas || 0) >= 5;
+            const puedeToggle = activo
+              ? !sinCancelaciones && puedeModificarDia(value)
+              : puedeModificarDia(value);
+
+            return (
+              <div
+                key={value}
+                className={`dia-permanente-toggle ${activo ? 'dia-permanente-activo' : 'dia-permanente-inactivo'}`}
+              >
+                <span className="dia-permanente-nombre">{label}</span>
+                <span className={`dia-permanente-estado ${activo ? 'estado-activo' : 'estado-inactivo'}`}>
+                  {activo ? 'Activo' : 'Inactivo'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!puedeToggle) return;
+                    if (!activo) {
+                      handleToggleDiaPermanente(value, true);
+                      return;
+                    }
+                    if (
+                      confirm(
+                        `¿Desactivar ${label}?\n\nEsto contará como 1 de tus 5 cancelaciones permitidas.`
+                      )
+                    ) {
+                      handleToggleDiaPermanente(value, false);
+                    }
+                  }}
+                  className={`btn-toggle-dia ${activo ? 'btn-desactivar-dia' : 'btn-activar-dia'}`}
+                  disabled={loading || !puedeToggle}
+                  title={
+                    !puedeToggle && activo && sinCancelaciones
+                      ? 'Sin cancelaciones disponibles'
+                      : !puedeToggle
+                        ? 'No se puede modificar después de la 1:00 PM del mismo día'
+                        : activo
+                          ? 'Desactivar este día'
+                          : 'Activar este día'
+                  }
+                >
+                  {activo ? '✕ Cancelar' : '✓ Activar'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
+          <p className="text-sm">
+            ℹ️ Los días activos se repiten cada semana. Puedes activar o desactivar cualquier día en cualquier momento (límite: 5 desactivaciones).
+          </p>
+        </div>
+      </div>
 
       {/* Registros Eventuales */}
       {registrosEventuales.length > 0 && (
@@ -561,30 +552,11 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         </div>
       )}
 
-      {/* Botón Nuevo */}
-      {!mostrarFormulario && !registroPermanente && (
+      {/* Botón agregar día eventual */}
+      {!mostrarFormulario && (
         <div className="text-center">
-          <button onClick={() => setMostrarFormulario(true)} className="btn-nuevo">
-            ✨ Nuevo Registro
-          </button>
-        </div>
-      )}
-
-      {/* Mensaje cuando ya hay permanente */}
-      {!mostrarFormulario && registroPermanente && (
-        <div className="text-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-700">
-          <p className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
-            ℹ️ Ya tienes un registro permanente activo
-          </p>
-          <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
-            Este registro se aplica automáticamente cada semana de todos los meses. 
-            Si necesitas agregar días eventuales específicos, usa el botón de abajo.
-          </p>
-          <button 
-            onClick={() => {
-              setTipoRegistro('eventual');
-              setMostrarFormulario(true);
-            }} 
+          <button
+            onClick={() => setMostrarFormulario(true)}
             className="btn-agregar-eventual"
           >
             📅 Agregar Día Eventual
@@ -592,57 +564,13 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
         </div>
       )}
 
-      {/* Formulario */}
+      {/* Formulario eventual */}
       {mostrarFormulario && (
         <div className="formulario-card">
-          <div className="tipo-selector-tabs">
-            {!registroPermanente && (
-              <button
-                onClick={() => setTipoRegistro('permanente')}
-                className={`tipo-tab ${tipoRegistro === 'permanente' ? 'active' : ''}`}
-              >
-                🔄 Permanente
-              </button>
-            )}
-            <button
-              onClick={() => setTipoRegistro('eventual')}
-              className={`tipo-tab ${tipoRegistro === 'eventual' ? 'active' : ''}`}
-            >
-              📅 Eventual
-            </button>
-          </div>
+          <h3 className="text-lg font-bold mb-4">📅 Día Eventual</h3>
 
           <form onSubmit={handleSubmit} className="form-content">
-            {tipoRegistro === 'permanente' ? (
-              registroPermanente ? (
-                <div className="p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border-2 border-yellow-200 dark:border-yellow-700">
-                  <p className="font-semibold text-yellow-900 dark:text-yellow-100">
-                    ⚠️ Ya existe un registro permanente
-                  </p>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-2">
-                    Solo puedes tener un registro permanente activo. Usa la opción "Eventual" para días específicos.
-                  </p>
-                </div>
-              ) : (
-                <div className="dias-permanente-selector">
-                  <h4 className="selector-title">Días de la semana (máx. 5)</h4>
-                  <div className="dias-inline">
-                    {DIAS_SEMANA.map(({ value, label, short }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => toggleDia(value)}
-                        className={`dia-inline-btn ${diasSeleccionados.includes(value) ? 'selected' : ''}`}
-                        title={label}
-                      >
-                        <span className="dia-full">{label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )
-            ) : (
-              <div className="calendario-eventual">
+            <div className="calendario-eventual">
                 <div className="calendario-header">
                   <button type="button" onClick={() => cambiarMes(-1)} className="calendario-nav">
                     ←
@@ -686,14 +614,12 @@ export default function FormularioRegistro({ alumno }: FormularioRegistroProps) 
                   {fechasEventuales.length} {fechasEventuales.length === 1 ? 'día seleccionado' : 'días seleccionados'}
                 </p>
               </div>
-            )}
 
             <div className="form-actions">
               <button
                 type="button"
                 onClick={() => {
                   setMostrarFormulario(false);
-                  setDiasSeleccionados([]);
                   setFechasEventuales([]);
                 }}
                 className="btn-cancelar"

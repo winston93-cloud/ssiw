@@ -1219,6 +1219,153 @@ body {
   margin-bottom: 0.5rem;
 }
 
+/* Grid permanente L–V con estados activo/inactivo */
+.dias-permanente-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 768px) {
+  .dias-permanente-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dias-permanente-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dia-permanente-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem;
+  border-radius: var(--radius-lg);
+  border: 2px solid transparent;
+  transition: var(--transition-base);
+  min-height: 120px;
+  justify-content: center;
+}
+
+.dia-permanente-activo {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);
+}
+
+.dia-permanente-inactivo {
+  background: rgba(148, 163, 184, 0.08);
+  border-color: rgba(148, 163, 184, 0.25);
+  opacity: 0.85;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dia-permanente-inactivo {
+    background: rgba(71, 85, 105, 0.2);
+    border-color: rgba(100, 116, 139, 0.35);
+  }
+}
+
+.dia-permanente-nombre {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.dia-permanente-activo .dia-permanente-nombre {
+  color: #15803d;
+}
+
+.dia-permanente-inactivo .dia-permanente-nombre {
+  color: var(--muted-foreground, #64748b);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dia-permanente-activo .dia-permanente-nombre {
+    color: #4ade80;
+  }
+}
+
+.dia-permanente-estado {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.estado-activo {
+  background: rgba(34, 197, 94, 0.2);
+  color: #15803d;
+}
+
+.estado-inactivo {
+  background: rgba(148, 163, 184, 0.2);
+  color: #64748b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .estado-activo {
+    color: #4ade80;
+  }
+  .estado-inactivo {
+    color: #94a3b8;
+  }
+}
+
+.btn-toggle-dia {
+  min-height: var(--touch-min, 44px);
+  min-width: 100px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+  border: 1px solid transparent;
+}
+
+.btn-toggle-dia:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-activar-dia {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.btn-activar-dia:hover:not(:disabled) {
+  background: #22c55e;
+  color: white;
+}
+
+.btn-desactivar-dia {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error, #dc2626);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.btn-desactivar-dia:hover:not(:disabled) {
+  background: var(--error, #dc2626);
+  color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  .btn-activar-dia {
+    color: #4ade80;
+  }
+  .btn-activar-dia:hover:not(:disabled) {
+    color: white;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .dia-label-permanent-grande {
     color: var(--foreground);
