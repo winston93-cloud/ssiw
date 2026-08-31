@@ -84,6 +84,41 @@ export async function fetchAlumnoByRef(alumnoRef: string | number) {
   return { data: row ?? null, error: null as string | null }
 }
 
+/** Alumno activo en el ciclo indicado (por defecto el vigente). */
+export async function fetchAlumnosActivosCicloByRefs(
+  alumnoRefs: Array<string | number>,
+  cicloEscolar: number,
+  niveles?: number[]
+) {
+  const db = createDbServiciosAdmin()
+  const refs = [...new Set(alumnoRefs.map((r) => Number(String(r).replace(/\D/g, ''))).filter((r) => r > 0))]
+  if (!refs.length || !cicloEscolar) {
+    return { data: new Map<string, Record<string, unknown>>(), error: null as string | null }
+  }
+
+  let query = db
+    .from('alumno')
+    .select('*')
+    .in('alumno_ref', refs)
+    .eq('alumno_ciclo_escolar', cicloEscolar)
+    .eq('alumno_status', 1)
+
+  if (niveles?.length) {
+    query = query.in('alumno_nivel', niveles)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    return { data: new Map<string, Record<string, unknown>>(), error: error.message || String(error) }
+  }
+
+  const map = new Map<string, Record<string, unknown>>()
+  for (const row of (data || []) as Record<string, unknown>[]) {
+    map.set(String(row.alumno_ref), row)
+  }
+  return { data: map, error: null as string | null }
+}
+
 export async function fetchAlumnoByIdAndRef(
   alumnoId: number,
   alumnoRef: string | number

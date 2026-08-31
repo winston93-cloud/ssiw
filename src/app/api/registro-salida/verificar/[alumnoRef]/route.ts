@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verificarPIN } from '@/lib/auth-maestras';
 import { fetchAlumnoByRef, nombreCompletoAlumno } from '@/lib/insforge';
 import {
-  allowLegacyLogin,
   applySessionCookie,
   signSession,
 } from '@/lib/ssiwSession';
@@ -13,25 +11,6 @@ export async function GET(
 ) {
   try {
     const { alumnoRef } = await params;
-
-    // PIN de maestra: solo en local/dev o con SSIW_ALLOW_LEGACY_LOGIN=1
-    if (allowLegacyLogin()) {
-      const resultadoMaestra = verificarPIN(alumnoRef);
-      if (resultadoMaestra.valido && resultadoMaestra.maestra) {
-        const sessionToken = signSession({
-          role: 'maestra',
-          displayName: resultadoMaestra.maestra.nombre,
-          usuario_username: resultadoMaestra.maestra.id,
-        });
-        const res = NextResponse.json({
-          success: true,
-          tipo: 'maestra',
-          data: resultadoMaestra.maestra,
-        });
-        applySessionCookie(res, sessionToken);
-        return res;
-      }
-    }
 
     const { data: alumnoRow, error } = await fetchAlumnoByRef(alumnoRef);
 

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { insforge, fetchAlumnoByRef, nombreCompletoAlumno } from '@/lib/insforge';
+import { fetchAlumnosActivosCicloByRefs, nombreCompletoAlumno } from '@/lib/insforge';
+import { fetchCicloEscolarActual } from '@/lib/cicloEscolar';
+import { insforge } from '@/lib/insforge';
 import { isErrorResponse, requireMaestraSession } from '@/lib/ssiwSession';
 
 function sinTildes(text: string) {
@@ -71,10 +73,17 @@ export async function GET(request: NextRequest) {
       return acc;
     }, []);
 
-    // 4. Obtener datos de alumnos desde Winston Servicios (InsForge)
-    const alumnosConDatos = await Promise.all(
-      registrosUnicos.map(async (reg: any) => {
-        const { data: alumno } = await fetchAlumnoByRef(reg.alumno_ref);
+    const cicloActual = await fetchCicloEscolarActual();
+    const refs = registrosUnicos.map((r: { alumno_ref: string | number }) => r.alumno_ref);
+    const { data: alumnosActivosMap } = await fetchAlumnosActivosCicloByRefs(refs, cicloActual, [3, 4]);
+
+    const registrosVigentes = registrosUnicos.filter((reg: { alumno_ref: string | number }) =>
+      alumnosActivosMap.has(String(reg.alumno_ref))
+    );
+
+    // 4. Obtener datos de alumnos activos (primaria/secundaria, ciclo vigente)
+    const alumnosConDatos = registrosVigentes.map((reg: any) => {
+        const alumno = alumnosActivosMap.get(String(reg.alumno_ref));
         
         // Determinar nivel educativo y formatear grado
         let nivelEducativo = 'Sin nivel';
@@ -128,8 +137,7 @@ export async function GET(request: NextRequest) {
           nivel_educativo: nivelEducativo,
           tipo_registro: reg.tipo_registro
         };
-      })
-    );
+      });
 
     // 5. Obtener entregas ya realizadas hoy
     const { data: entregasHoy } = await insforge.database

@@ -41,7 +41,7 @@ export default function EntregaDashboardPage() {
   useEffect(() => {
     const maestraData = localStorage.getItem('maestra');
     if (!maestraData) {
-      router.push('/login');
+      router.push('/entrega/login');
     } else {
       setMaestra(JSON.parse(maestraData));
       cargarAlumnos(new Date().toISOString().split('T')[0]);
@@ -124,7 +124,7 @@ export default function EntregaDashboardPage() {
     localStorage.removeItem('maestra');
     localStorage.removeItem('alumno');
     void fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/login');
+    router.push('/entrega/login');
   };
 
   const volverAlDashboardPrincipal = () => {
