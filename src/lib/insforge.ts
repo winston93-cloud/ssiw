@@ -10,7 +10,11 @@ function requireSsiwPublicEnv() {
   return { baseUrl, anonKey }
 }
 
-/** Winston-Ssiw (registro_salida_pie, entregas_alumnos). No mover esas tablas. */
+/**
+ * Backend consolidado en Winston Servicios (g4ta4bfg):
+ * registro_salida_pie + entregas_alumnos (+ alumno vía createDbServiciosAdmin).
+ * El NANO winston-ssiw (xkeq76zc) queda deprecado tras cutover en Vercel.
+ */
 export const insforge = createClient(requireSsiwPublicEnv())
 
 let ssiwAdmin: InsForgeClient | null = null
@@ -21,7 +25,7 @@ export function createDbSsiwAdmin() {
   const apiKey =
     process.env.INSFORGE_API_KEY ?? process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY
   if (!baseUrl || !apiKey) {
-    throw new Error('Faltan credenciales admin de Winston-Ssiw')
+    throw new Error('Faltan credenciales admin de Winston Servicios (SSIW)')
   }
   if (!ssiwAdmin) {
     ssiwAdmin = createAdminClient({ baseUrl, apiKey })
@@ -32,11 +36,16 @@ export function createDbSsiwAdmin() {
 function requireServiciosAdminEnv() {
   const baseUrl =
     process.env.INSFORGE_SERVICIOS_URL ??
-    process.env.NEXT_PUBLIC_INSFORGE_SERVICIOS_URL
-  const apiKey = process.env.INSFORGE_SERVICIOS_API_KEY
+    process.env.NEXT_PUBLIC_INSFORGE_SERVICIOS_URL ??
+    process.env.NEXT_PUBLIC_INSFORGE_URL ??
+    process.env.INSFORGE_URL
+  const apiKey =
+    process.env.INSFORGE_SERVICIOS_API_KEY ??
+    process.env.INSFORGE_API_KEY ??
+    process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY
   if (!baseUrl || !apiKey) {
     throw new Error(
-      'Faltan INSFORGE_SERVICIOS_URL e INSFORGE_SERVICIOS_API_KEY (Winston Servicios)'
+      'Faltan credenciales de Winston Servicios (INSFORGE_SERVICIOS_* o INSFORGE_*)'
     )
   }
   return { baseUrl, apiKey }
